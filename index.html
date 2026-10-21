@@ -1,0 +1,1023 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>데이터와 인공지능 실습실</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap">
+<style>
+/* Layout: 하늘색 교실 바탕 위에 미션 탭(상단 고정) + 한 번에 미션 하나씩 보이는 활동판 */
+:root{
+  --bg:#EEF6FC; --surface:#FFFFFF; --surface2:#F6FAFE; --ink:#1D2A39; --muted:#56687B; --line:#D3E2EF;
+  --sky:#1F7FD6; --sky-soft:#DCEEFD; --sun:#FFC22E; --sun-soft:#FFF3CF; --coral:#F0584A; --coral-soft:#FFE4E0;
+  --leaf:#1E9E66; --leaf-soft:#DDF5E9; --grape:#7A5AD8; --grape-soft:#ECE6FC;
+  --on-accent:#FFFFFF;
+  --f-display:"Jua","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --f-body:"Gowun Dodum","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --r:18px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E1824; --surface:#16273A; --surface2:#1B2F45; --ink:#EAF2FA; --muted:#A3B6C9; --line:#2B415A;
+  --sky:#5AAEF5; --sky-soft:#173A5C; --sun:#FFD25A; --sun-soft:#3D3416; --coral:#FF8A7D; --coral-soft:#47231F;
+  --leaf:#4DCB92; --leaf-soft:#173D2D; --grape:#A68CF5; --grape-soft:#2D2550; --on-accent:#0E1824; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E1824; --surface:#16273A; --surface2:#1B2F45; --ink:#EAF2FA; --muted:#A3B6C9; --line:#2B415A;
+  --sky:#5AAEF5; --sky-soft:#173A5C; --sun:#FFD25A; --sun-soft:#3D3416; --coral:#FF8A7D; --coral-soft:#47231F;
+  --leaf:#4DCB92; --leaf-soft:#173D2D; --grape:#A68CF5; --grape-soft:#2D2550; --on-accent:#0E1824; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.7;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 48px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+h1,h2,h3,h4{font-family:var(--f-display);font-weight:400;line-height:1.3;text-wrap:balance;margin:0}
+p{margin:0}
+a{color:var(--sky)}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.wrap{max-width:1040px;margin:0 auto}
+
+/* header */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-top:12px;padding-bottom:8px;border-bottom:2px solid var(--line)}
+.brand{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:space-between}
+.brand h1{font-size:clamp(22px,4vw,30px);display:flex;align-items:center;gap:10px}
+.brand h1 svg{flex:none}
+.stars{font-family:var(--f-display);font-size:16px;background:var(--sun-soft);border:2px solid var(--sun);padding:2px 12px;border-radius:99px;white-space:nowrap}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:10px 2px 4px;scrollbar-width:thin}
+.tab{flex:none;border:2px solid var(--line);background:var(--surface);border-radius:99px;padding:4px 12px;font-family:var(--f-display);font-size:15px;display:flex;align-items:center;gap:6px;color:var(--muted)}
+.tab .n{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--surface2);font-size:13px;color:var(--ink)}
+.tab[aria-current="true"]{border-color:var(--sky);background:var(--sky);color:var(--on-accent)}
+.tab[aria-current="true"] .n{background:var(--on-accent);color:var(--sky)}
+.tab.done .n{background:var(--leaf);color:var(--on-accent)}
+.tab.sep{border:none;background:none;padding:4px 2px;color:var(--muted);font-size:13px;cursor:default}
+
+/* sections */
+main{padding-top:22px}
+section.m{display:grid;gap:20px}
+section.m[hidden]{display:none}
+.m-head{display:grid;gap:6px}
+.eyebrow{font-family:var(--f-display);color:var(--sky);font-size:16px;letter-spacing:.02em}
+.m-head h2{font-size:clamp(26px,5vw,38px)}
+.m-head .lead{color:var(--muted);max-width:65ch}
+.panel{background:var(--surface);border:2px solid var(--line);border-radius:var(--r);padding:20px;display:grid;gap:14px;min-width:0}
+.panel h3{font-size:22px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.key{background:var(--sun-soft);border-radius:var(--r);padding:16px 18px;border:2px dashed var(--sun)}
+.key b{font-family:var(--f-display);font-weight:400;color:var(--ink)}
+.word{background:linear-gradient(transparent 60%,var(--sun-soft) 60%);font-weight:700}
+.chip{display:inline-block;font-family:var(--f-display);font-size:14px;padding:1px 10px;border-radius:99px;background:var(--sky-soft);color:var(--sky)}
+.chip.a{background:var(--coral-soft);color:var(--coral)}
+.chip.d{background:var(--sky-soft);color:var(--sky)}
+.chip.g{background:var(--leaf-soft);color:var(--leaf)}
+.muted{color:var(--muted)}
+.small{font-size:15px}
+.btn{border:none;border-radius:14px;padding:10px 18px;font-family:var(--f-display);font-size:17px;background:var(--sky);color:var(--on-accent)}
+.btn.ghost{background:var(--surface2);color:var(--ink);border:2px solid var(--line)}
+.btn.sun{background:var(--sun);color:#1D2A39}
+.btn.leaf{background:var(--leaf);color:var(--on-accent)}
+.btn.coral{background:var(--coral);color:var(--on-accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+textarea,input[type=text]{width:100%;font:inherit;font-size:16px;color:var(--ink);background:var(--surface2);border:2px solid var(--line);border-radius:12px;padding:10px 12px}
+textarea{min-height:76px;resize:vertical}
+.feedback{min-height:1.7em;font-family:var(--f-display);font-size:17px}
+.feedback.ok{color:var(--leaf)} .feedback.no{color:var(--coral)}
+.finish{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center;border-top:2px dashed var(--line);padding-top:18px}
+.stamp{font-family:var(--f-display);border:3px solid var(--leaf);color:var(--leaf);background:var(--leaf-soft);border-radius:14px;padding:8px 16px;font-size:17px}
+.stamp[aria-pressed="true"]{background:var(--leaf);color:var(--on-accent)}
+.navbtns{display:flex;gap:8px}
+
+/* home */
+.hero{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:20px;align-items:center;background:var(--sky-soft);border-radius:24px;padding:26px}
+.hero h2{font-size:clamp(28px,6vw,46px)}
+.hero p{max-width:50ch}
+@media (max-width:700px){.hero{grid-template-columns:1fr}}
+.plan{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.plan .panel h3{display:flex;align-items:center;gap:8px}
+.plan ol{margin:0;padding-left:0;list-style:none;display:grid;gap:6px}
+.plan li{display:flex;gap:10px;align-items:baseline}
+.plan li button{all:unset;cursor:pointer;color:var(--sky);font-family:var(--f-display);font-size:17px}
+.plan li .t{font-size:14px;color:var(--muted);white-space:nowrap;margin-left:auto;font-variant-numeric:tabular-nums}
+.goal li{margin-bottom:4px}
+
+/* m1 scene */
+.scene-wrap{border-radius:var(--r);overflow:hidden;border:2px solid var(--line);background:#F4EED9}
+.scene-wrap svg{display:block;width:100%;height:auto}
+.clue{cursor:pointer}
+.clue .ring{fill:none;stroke:#FFC22E;stroke-width:5;stroke-dasharray:10 7;opacity:.95}
+.clue.found .ring{stroke:#1E9E66;stroke-dasharray:none}
+.clue:hover .ring,.clue:focus .ring{stroke-width:8}
+.clue:focus{outline:none}
+@media (prefers-reduced-motion:no-preference){.clue:not(.found) .ring{animation:pulse 1.6s ease-in-out infinite}}
+@keyframes pulse{50%{opacity:.35}}
+.notebook{display:grid;gap:10px}
+.note{display:flex;gap:12px;align-items:flex-start;padding:10px 12px;background:var(--surface2);border-radius:12px;border:2px solid var(--line)}
+.note .ic{flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--sun);color:#1D2A39;font-family:var(--f-display)}
+.note.empty{opacity:.55}
+.suspects{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.suspect{border:2px solid var(--line);background:var(--surface2);border-radius:14px;padding:12px;display:grid;justify-items:center;gap:4px;font-family:var(--f-display);font-size:18px}
+.suspect svg{width:70px;height:70px}
+.suspect.right{border-color:var(--leaf);background:var(--leaf-soft)}
+.suspect.wrong{border-color:var(--coral);background:var(--coral-soft)}
+
+/* m2 */
+.life{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.life .panel{align-content:start}
+.life svg{width:100%;height:120px}
+.idea{display:grid;grid-template-columns:110px minmax(0,1fr);gap:14px;align-items:start;padding:14px;border-radius:14px;background:var(--surface2);border:2px solid var(--line)}
+.idea .pic{display:grid;justify-items:center;gap:4px;font-family:var(--f-display)}
+.idea .pic svg{width:70px;height:70px}
+.idea .ex{font-size:15px;color:var(--leaf);background:var(--leaf-soft);border-radius:10px;padding:6px 10px}
+@media (max-width:480px){.idea{grid-template-columns:1fr}}
+
+/* m3 */
+.weather{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.wv{background:var(--surface2);border:2px solid var(--line);border-radius:14px;padding:10px 12px}
+.wv .l{font-size:14px;color:var(--muted)}
+.wv .v{font-family:var(--f-display);font-size:24px;font-variant-numeric:tabular-nums}
+.form-a{border-color:var(--coral)!important;background:var(--coral-soft)!important}
+.form-d{border-color:var(--sky)!important;background:var(--sky-soft)!important}
+.players{display:flex;gap:8px;flex-wrap:wrap}
+.pl{padding:6px 14px;border-radius:12px;border:2px solid var(--line);background:var(--surface2);font-family:var(--f-display);font-variant-numeric:tabular-nums}
+.pl.on{border-color:var(--sun);background:var(--sun-soft)}
+.board{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;max-width:640px;width:100%;margin:0 auto}
+.card{aspect-ratio:3/4;max-width:100%;border:none;border-radius:14px;padding:0;perspective:600px;background:none}
+.card .in{position:relative;width:100%;height:100%;transition:transform .45s;transform-style:preserve-3d}
+.card.up .in{transform:rotateY(180deg)}
+.card .face,.card .back{position:absolute;inset:0;border-radius:14px;backface-visibility:hidden;display:grid;place-items:center;padding:6px}
+.card .back{background:var(--sky);border:3px solid var(--sky);
+  background-image:radial-gradient(circle at 25% 25%,rgba(255,255,255,.25) 0 10%,transparent 11%),radial-gradient(circle at 75% 70%,rgba(255,255,255,.2) 0 14%,transparent 15%)}
+.card .back span{font-family:var(--f-display);font-size:clamp(20px,5vw,34px);color:var(--on-accent)}
+.card .face{transform:rotateY(180deg);background:var(--surface);border:3px solid var(--line);align-content:center;gap:2px;text-align:center}
+.card .face .e{font-size:clamp(26px,6vw,44px);line-height:1}
+.card .face .t{font-size:clamp(11px,2.4vw,15px);line-height:1.3;font-family:var(--f-display)}
+.card .face .f{font-size:12px;font-family:var(--f-display)}
+.card.taken{opacity:.25}
+@media (prefers-reduced-motion:reduce){.card .in{transition:none}}
+
+/* sorting */
+.pool{display:flex;flex-wrap:wrap;gap:8px;min-height:52px}
+.item{border:2px solid var(--line);background:var(--surface);border-radius:12px;padding:6px 12px;font-size:16px;display:flex;align-items:center;gap:6px}
+.item.sel{border-color:var(--sun);background:var(--sun-soft);box-shadow:0 0 0 3px var(--sun)}
+.item.ok{border-color:var(--leaf);background:var(--leaf-soft);cursor:default}
+.buckets{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.bucket{border:3px dashed var(--line);border-radius:16px;padding:12px;min-height:130px;display:grid;align-content:start;gap:8px;background:var(--surface2);text-align:left}
+.bucket h4{font-size:19px}
+.bucket .got{display:flex;flex-wrap:wrap;gap:6px}
+.bucket.ready{border-color:var(--sun)}
+
+/* m5 classifier */
+.pipe{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:10px;align-items:center}
+.pipe .st{background:var(--surface2);border:2px solid var(--line);border-radius:14px;padding:12px;text-align:center;display:grid;gap:4px}
+.pipe .st b{font-family:var(--f-display);font-weight:400;font-size:18px}
+.pipe .ar{font-family:var(--f-display);font-size:26px;color:var(--sky)}
+@media (max-width:640px){.pipe{grid-template-columns:1fr}.pipe .ar{transform:rotate(90deg);justify-self:center}}
+.ml{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,.8fr) minmax(0,1fr);gap:14px}
+@media (max-width:860px){.ml{grid-template-columns:1fr}}
+.col-h{font-family:var(--f-display);font-size:19px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.cls{border:2px solid var(--line);border-radius:14px;padding:10px;display:grid;gap:8px;background:var(--surface2)}
+.cls-top{display:flex;justify-content:space-between;align-items:center;gap:8px;font-family:var(--f-display)}
+.sw{display:flex;flex-wrap:wrap;gap:5px}
+.sw button{width:30px;height:30px;border-radius:8px;border:2px solid var(--surface);box-shadow:0 0 0 1px var(--line);padding:0}
+.cls .ctrl{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.cls .ctrl button{padding:4px 10px;font-size:14px;border-radius:10px}
+input[type=color]{width:44px;height:34px;border:2px solid var(--line);border-radius:10px;background:var(--surface);padding:2px}
+.need{font-size:13px;color:var(--coral)}
+.need.ok{color:var(--leaf)}
+.bar{height:14px;background:var(--surface2);border:1px solid var(--line);border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--sky);border-radius:99px;transition:width .3s}
+.res{display:grid;gap:8px}
+.res .r{display:grid;grid-template-columns:52px minmax(0,1fr) 54px;gap:8px;align-items:center;font-size:15px;font-variant-numeric:tabular-nums}
+.big-res{font-family:var(--f-display);font-size:26px}
+.light{width:84px}
+
+/* entry blocks */
+.steps{counter-reset:s;display:grid;gap:10px;list-style:none;padding:0;margin:0}
+.steps li{counter-increment:s;display:grid;grid-template-columns:36px minmax(0,1fr);gap:10px;align-items:start;background:var(--surface2);border:2px solid var(--line);border-radius:14px;padding:10px 12px}
+.steps li::before{content:counter(s);width:32px;height:32px;border-radius:50%;background:var(--sky);color:var(--on-accent);display:grid;place-items:center;font-family:var(--f-display)}
+.steps li.chk{cursor:pointer}
+.steps li.chk.on{border-color:var(--leaf);background:var(--leaf-soft)}
+.steps li.chk.on::before{content:"✓";background:var(--leaf)}
+.menu{font-family:var(--f-display);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:0 6px;font-size:15px;white-space:nowrap}
+.code{overflow-x:auto;background:var(--surface2);border:2px solid var(--line);border-radius:14px;padding:14px}
+.blocks{display:grid;gap:3px;justify-items:start;min-width:max-content;font-size:15px}
+.blk{color:#fff;border-radius:8px;padding:5px 12px;font-family:var(--f-body);font-weight:700;display:flex;gap:6px;align-items:center;white-space:nowrap}
+.blk.ev{background:#1FA866;border-radius:18px 8px 8px 8px;padding-left:10px}
+.blk.vi{background:#5767D9}
+.blk.fl{background:#2C93D6}
+.blk.ai{background:#7B5BE0}
+.blk.lk{background:#D94B8C}
+.blk.mv{background:#9B4FD6}
+.blk .slot{background:rgba(255,255,255,.95);color:#1D2A39;border-radius:6px;padding:0 8px;font-weight:700}
+.blk .cond{background:rgba(0,0,0,.18);border-radius:12px;padding:1px 10px}
+.nest{border-left:14px solid #2C93D6;padding:3px 0 3px 6px;display:grid;gap:3px;justify-items:start;border-radius:0 0 0 8px}
+.cmt{font-size:14px;color:var(--muted);margin-left:10px;font-weight:400;font-family:var(--f-body)}
+.sim{border-radius:var(--r);overflow:hidden;border:2px solid var(--line)}
+.sim svg{display:block;width:100%;height:auto}
+
+/* m8 */
+.flip{border:2px solid var(--line);background:var(--surface2);border-radius:14px;padding:14px;text-align:left;display:grid;gap:6px;align-content:start;min-height:120px}
+.flip .q{font-family:var(--f-display);font-size:18px}
+.flip .a{font-size:15px}
+.flip.open{border-color:var(--grape);background:var(--grape-soft)}
+.flip .hint{font-size:13px;color:var(--muted)}
+.gen{background:var(--grape-soft);border:2px solid var(--grape);border-radius:var(--r);padding:20px;display:grid;gap:12px}
+.gen h3{color:var(--grape)}
+
+/* quiz */
+.qz{display:grid;gap:14px}
+.qq{background:var(--surface);border:2px solid var(--line);border-radius:var(--r);padding:16px;display:grid;gap:10px}
+.qq h4{font-size:19px}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opts button{border:2px solid var(--line);background:var(--surface2);border-radius:12px;padding:6px 14px;font-size:16px}
+.opts button.right{border-color:var(--leaf);background:var(--leaf-soft)}
+.opts button.wrong{border-color:var(--coral);background:var(--coral-soft)}
+.score{font-family:var(--f-display);font-size:28px;text-align:center;padding:18px;border-radius:var(--r);background:var(--sun-soft);border:2px solid var(--sun)}
+
+/* certificate */
+.cert{background:var(--sun-soft);border:3px solid var(--sun);border-radius:var(--r);padding:20px;display:grid;gap:12px}
+.cert h3{font-size:24px}
+.cert .todo{display:flex;flex-wrap:wrap;gap:8px}
+.cert .todo span{font-family:var(--f-display);font-size:15px;padding:2px 12px;border-radius:99px;border:2px solid var(--line);background:var(--surface)}
+.cert .todo span.ok{border-color:var(--leaf);background:var(--leaf-soft);color:var(--leaf)}
+.cert canvas{width:100%;max-width:600px;height:auto;border-radius:12px;border:2px solid var(--line);background:#fff;justify-self:center}
+</style>
+</head>
+<body>
+
+
+<div class="top"><div class="wrap">
+  <div class="brand">
+    <h1><svg width="36" height="36" viewBox="0 0 40 40" aria-hidden="true"><rect x="6" y="9" width="28" height="24" rx="9" fill="var(--sky)"/><circle cx="15" cy="21" r="4" fill="#fff"/><circle cx="25" cy="21" r="4" fill="#fff"/><circle cx="15" cy="21" r="2" fill="#1D2A39"/><circle cx="25" cy="21" r="2" fill="#1D2A39"/><rect x="18.5" y="2" width="3" height="7" fill="var(--sky)"/><circle cx="20" cy="3" r="3" fill="var(--sun)"/><rect x="14" y="27" width="12" height="2.5" rx="1.2" fill="#fff"/></svg>데이터와 인공지능 실습실</h1>
+    <span class="stars" id="stars">★ 0 / 9 미션</span>
+  </div>
+  <nav class="tabs" id="tabs" aria-label="미션 목록"></nav>
+</div></div>
+
+<main class="wrap" id="main">
+
+<!-- HOME -->
+<section class="m" id="m0" data-title="시작">
+  <div class="hero">
+    <div style="display:grid;gap:12px">
+      <span class="eyebrow">6. 인공지능과 로봇의 만남 · 01 데이터와 인공지능</span>
+      <h2>데이터를 모아서<br>똑똑한 AI를 만들어 봐요!</h2>
+      <p>미션을 하나씩 해결하면서 데이터가 무엇인지, 인공지능이 데이터로 어떻게 배우는지, 인공지능이 우리 사회를 어떻게 바꾸는지 알아봐요. 미션을 끝내면 <b>미션 완료</b> 도장을 눌러 별을 모으세요.</p>
+      <div class="row"><button class="btn sun" data-go="m1">미션 1부터 시작하기</button></div>
+    </div>
+    <svg viewBox="0 0 300 220" aria-hidden="true" style="width:100%;max-width:340px;justify-self:center">
+      <ellipse cx="150" cy="205" rx="95" ry="10" fill="#1D2A39" opacity=".12"/>
+      <rect x="85" y="60" width="130" height="105" rx="32" fill="#FFFFFF" stroke="#1F7FD6" stroke-width="5"/>
+      <rect x="103" y="82" width="94" height="52" rx="18" fill="#1D2A39"/>
+      <circle cx="128" cy="108" r="10" fill="#5AE0FF"/><circle cx="172" cy="108" r="10" fill="#5AE0FF"/>
+      <path d="M135 145 q15 10 30 0" stroke="#1F7FD6" stroke-width="5" fill="none" stroke-linecap="round"/>
+      <rect x="146" y="30" width="8" height="30" fill="#1F7FD6"/><circle cx="150" cy="26" r="10" fill="#FFC22E"/>
+      <rect x="60" y="95" width="25" height="42" rx="12" fill="#1F7FD6"/><rect x="215" y="95" width="25" height="42" rx="12" fill="#1F7FD6"/>
+      <rect x="110" y="165" width="26" height="32" rx="10" fill="#1F7FD6"/><rect x="164" y="165" width="26" height="32" rx="10" fill="#1F7FD6"/>
+      <g font-family="Jua, sans-serif" font-size="18">
+        <rect x="8" y="20" width="62" height="34" rx="10" fill="#FFE4E0"/><text x="39" y="43" text-anchor="middle" fill="#F0584A">글자</text>
+        <rect x="230" y="14" width="62" height="34" rx="10" fill="#DDF5E9"/><text x="261" y="37" text-anchor="middle" fill="#1E9E66">숫자</text>
+        <rect x="4" y="160" width="68" height="34" rx="10" fill="#FFF3CF"/><text x="38" y="183" text-anchor="middle" fill="#B07800">이미지</text>
+        <rect x="232" y="165" width="62" height="34" rx="10" fill="#ECE6FC"/><text x="263" y="188" text-anchor="middle" fill="#7A5AD8">소리</text>
+      </g>
+    </svg>
+  </div>
+  <div class="panel goal">
+    <h3>이번 시간에 배울 것</h3>
+    <ul style="margin:0;padding-left:22px">
+      <li>디지털 데이터와 아날로그 데이터의 특징을 이해하고, 인공지능에 활용할 수 있는 데이터의 유형이나 형태를 탐색할 수 있어요.</li>
+      <li>인공지능이 만들어지는 과정을 체험하고, 인공지능이 사회에 미치는 영향을 탐색할 수 있어요.</li>
+    </ul>
+  </div>
+  <div class="plan">
+    <div class="panel"><h3><span class="chip">1차시 · 40분</span> 데이터와 친해지기</h3><ol id="plan1"></ol></div>
+    <div class="panel"><h3><span class="chip g">2차시 · 40분</span> AI 만들고 생각하기</h3><ol id="plan2"></ol></div>
+  </div>
+  <div class="panel small muted" style="gap:6px">
+    <b style="color:var(--ink)">엔트리 실습 준비물</b>
+    <span>엔트리 사이트(<a href="https://playentry.org" target="_blank" rel="noopener">playentry.org</a>) 로그인, 웹캠이 있는 컴퓨터, 갈색 푸들과 몰티즈 사진 각각 5장 이상, 신호등(빨강·노랑·초록) 사진이나 그림 각각 5장 이상. 선생님이 준비해 주신 사진 폴더를 사용하세요.</span>
+  </div>
+</section>
+
+<!-- M1 -->
+<section class="m" id="m1" data-title="흔적 탐정" hidden>
+  <div class="m-head"><span class="eyebrow">미션 1 · 생각 펼치기</span><h2>무인 편의점 흔적 탐정</h2>
+    <p class="lead">산책을 마치고 집으로 돌아오는 길에 무인 편의점 바닥을 보고 깜짝 놀랐어요. 밤사이 무슨 일이 있었을까요? 그림 속 <b>노란 동그라미</b>를 눌러 흔적을 모두 찾아보세요.</p></div>
+  <div class="grid2" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr))">
+    <div class="scene-wrap">
+      <svg viewBox="0 0 800 460" role="img" aria-label="무인 편의점 바닥에 남은 흔적 그림">
+        <defs>
+          <g id="paw"><ellipse cx="0" cy="8" rx="11" ry="9" fill="#8B5A2B"/><ellipse cx="-11" cy="-6" rx="4.5" ry="5.5" fill="#8B5A2B"/><ellipse cx="-4" cy="-12" rx="4.5" ry="5.5" fill="#8B5A2B"/><ellipse cx="5" cy="-12" rx="4.5" ry="5.5" fill="#8B5A2B"/><ellipse cx="12" cy="-6" rx="4.5" ry="5.5" fill="#8B5A2B"/><path d="M-12 -12 l-2 -6 M-4 -18 l-1 -6 M5 -18 l1 -6 M13 -12 l2 -6" stroke="#5A3A1A" stroke-width="2"/></g>
+        </defs>
+        <rect width="800" height="250" fill="#D7EEF7"/>
+        <rect x="0" y="0" width="800" height="18" fill="#BFD9E6"/>
+        <rect x="40" y="40" width="250" height="70" rx="10" fill="#E6F4E0" stroke="#7DB36A" stroke-width="4"/>
+        <text x="165" y="88" text-anchor="middle" font-family="Jua, sans-serif" font-size="36" fill="#2F6B3A">무인 편의점</text>
+        <!-- camera -->
+        <g transform="translate(700,40)"><rect x="-40" y="-10" width="80" height="16" rx="6" fill="#ECECEC"/><ellipse cx="0" cy="22" rx="34" ry="24" fill="#F7F7F7" stroke="#CCC" stroke-width="3"/><circle cx="0" cy="26" r="13" fill="#222"/><circle cx="-4" cy="22" r="4" fill="#fff"/></g>
+        <!-- counter -->
+        <rect x="40" y="150" width="200" height="100" fill="#F4F4F4" stroke="#C9C9C9" stroke-width="3"/>
+        <rect x="80" y="120" width="80" height="34" rx="6" fill="#5A6E99"/><rect x="92" y="128" width="56" height="12" rx="3" fill="#BFD1F0"/>
+        <text x="120" y="215" text-anchor="middle" font-family="Jua, sans-serif" font-size="20" fill="#666">계산대</text>
+        <!-- shelves -->
+        <g>
+          <rect x="520" y="110" width="240" height="140" fill="#FFFFFF" stroke="#E2C9A8" stroke-width="4"/>
+          <rect x="520" y="155" width="240" height="8" fill="#E2C9A8"/><rect x="520" y="205" width="240" height="8" fill="#E2C9A8"/>
+          <g fill="#E39B4C"><rect x="535" y="128" width="40" height="26" rx="8"/><rect x="585" y="130" width="40" height="24" rx="8"/><rect x="635" y="126" width="40" height="28" rx="8"/><rect x="690" y="130" width="50" height="24" rx="8"/></g>
+          <g fill="#F2C14E"><rect x="540" y="178" width="46" height="26" rx="6"/><rect x="600" y="176" width="46" height="28" rx="6"/><rect x="660" y="178" width="46" height="26" rx="6"/></g>
+          <g fill="#C96F3B"><circle cx="555" cy="232" r="13"/><circle cx="590" cy="232" r="13"/><circle cx="640" cy="232" r="13"/><circle cx="690" cy="232" r="13"/><circle cx="730" cy="232" r="13"/></g>
+          <rect x="530" y="250" width="16" height="70" fill="#E2C9A8"/><rect x="734" y="250" width="16" height="70" fill="#E2C9A8"/>
+        </g>
+        <!-- floor -->
+        <rect y="250" width="800" height="210" fill="#B9D88F"/>
+        <path d="M0 330 H800 M0 400 H800 M200 250 L120 460 M420 250 L420 460 M620 250 L720 460" stroke="#A6C77B" stroke-width="2"/>
+        <!-- fruit stand -->
+        <rect x="270" y="190" width="160" height="60" fill="#E8935A"/><rect x="262" y="180" width="176" height="14" fill="#C9743F"/>
+        <g fill="#FFD43B"><path d="M285 180 q20 -30 45 -8 q-25 -5 -45 8z"/><path d="M325 180 q20 -32 48 -8 q-26 -6 -48 8z"/><path d="M370 180 q20 -30 45 -8 q-25 -5 -45 8z"/></g>
+        <!-- paw trail -->
+        <g opacity=".85">
+          <use href="#paw" transform="translate(470,300) rotate(-60) scale(.9)"/>
+          <use href="#paw" transform="translate(410,330) rotate(-70) scale(.9)"/>
+          <use href="#paw" transform="translate(350,305) rotate(-60) scale(.9)"/>
+          <use href="#paw" transform="translate(290,338) rotate(-75) scale(.9)"/>
+          <use href="#paw" transform="translate(230,312) rotate(-65) scale(.9)"/>
+          <use href="#paw" transform="translate(170,350) rotate(-70) scale(.9)"/>
+        </g>
+        <!-- scratches near shelf leg -->
+        <g stroke="#6B4A2A" stroke-width="4" stroke-linecap="round"><path d="M600 290 l40 34"/><path d="M612 284 l40 34"/><path d="M624 279 l38 32"/><path d="M636 275 l34 28"/></g>
+        <!-- fur -->
+        <g fill="none" stroke="#9A5B2C" stroke-width="3" stroke-linecap="round"><path d="M330 400 q8 -12 16 0 q8 12 16 0 q8 -12 16 0"/><path d="M336 412 q8 -10 16 0 q8 10 16 0"/><path d="M350 390 q6 -8 12 0 q6 8 12 0"/><path d="M380 405 q7 -10 14 0"/></g>
+        <!-- bitten banana -->
+        <g transform="translate(110,410) rotate(-15)"><path d="M-70 0 q70 40 140 -10 q-10 26 -40 34 q-60 14 -100 -24z" fill="#FFD43B" stroke="#C99A00" stroke-width="3"/><path d="M70 -10 l12 -8" stroke="#6B4A00" stroke-width="5" stroke-linecap="round"/><g fill="#B9D88F"><circle cx="-6" cy="28" r="7"/><circle cx="8" cy="30" r="7"/><circle cx="22" cy="28" r="7"/></g></g>
+        <!-- hotspots -->
+        <g class="clue" data-c="0" tabindex="0" role="button" aria-label="흔적 1"><circle class="ring" cx="635" cy="300" r="52"/><circle cx="635" cy="300" r="52" fill="transparent"/></g>
+        <g class="clue" data-c="1" tabindex="0" role="button" aria-label="흔적 2"><ellipse class="ring" cx="320" cy="322" rx="175" ry="50"/><ellipse cx="320" cy="322" rx="175" ry="50" fill="transparent"/></g>
+        <g class="clue" data-c="2" tabindex="0" role="button" aria-label="흔적 3"><circle class="ring" cx="362" cy="402" r="46"/><circle cx="362" cy="402" r="46" fill="transparent"/></g>
+        <g class="clue" data-c="3" tabindex="0" role="button" aria-label="흔적 4"><ellipse class="ring" cx="112" cy="408" rx="92" ry="44"/><ellipse cx="112" cy="408" rx="92" ry="44" fill="transparent"/></g>
+      </svg>
+    </div>
+    <div class="panel">
+      <h3>탐정 수첩 <span class="chip" id="clue-count">0 / 4</span></h3>
+      <div class="notebook" id="notebook"></div>
+    </div>
+  </div>
+  <div class="panel" id="who" >
+    <h3>범인은 누구일까요?</h3>
+    <p class="muted small" id="who-lock">흔적을 3개 이상 찾으면 추리할 수 있어요.</p>
+    <div class="suspects" id="suspects">
+      <button class="suspect" data-s="dog" disabled><svg viewBox="0 0 80 80" aria-hidden="true"><ellipse cx="40" cy="44" rx="24" ry="22" fill="#A0602E"/><ellipse cx="18" cy="38" rx="9" ry="16" fill="#7A4520"/><ellipse cx="62" cy="38" rx="9" ry="16" fill="#7A4520"/><circle cx="31" cy="40" r="4" fill="#1D2A39"/><circle cx="49" cy="40" r="4" fill="#1D2A39"/><ellipse cx="40" cy="52" rx="7" ry="5" fill="#1D2A39"/><g fill="#B87038"><circle cx="30" cy="24" r="7"/><circle cx="40" cy="21" r="7"/><circle cx="50" cy="24" r="7"/></g></svg>곱슬 털 강아지</button>
+      <button class="suspect" data-s="cat" disabled><svg viewBox="0 0 80 80" aria-hidden="true"><path d="M18 26 L22 8 L34 22 Z M62 26 L58 8 L46 22 Z" fill="#9AA3AE"/><ellipse cx="40" cy="44" rx="24" ry="21" fill="#AEB6C0"/><ellipse cx="31" cy="42" rx="4" ry="5" fill="#1D2A39"/><ellipse cx="49" cy="42" rx="4" ry="5" fill="#1D2A39"/><path d="M37 51 h6 l-3 3z" fill="#F08A9A"/><path d="M14 48 h14 M14 54 h14 M52 48 h14 M52 54 h14" stroke="#6B7480" stroke-width="2"/></svg>고양이</button>
+      <button class="suspect" data-s="human" disabled><svg viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="34" r="20" fill="#F5C9A0"/><path d="M20 30 q20 -26 40 0 q-6 -12 -20 -12 q-14 0 -20 12z" fill="#3B2A1E"/><circle cx="33" cy="35" r="3" fill="#1D2A39"/><circle cx="47" cy="35" r="3" fill="#1D2A39"/><path d="M34 44 q6 5 12 0" stroke="#1D2A39" stroke-width="2.5" fill="none"/><rect x="22" y="56" width="36" height="22" rx="10" fill="#F0584A"/></svg>사람 손님</button>
+    </div>
+    <p class="feedback" id="who-fb"></p>
+  </div>
+  <div class="key"><b>정리해요 ·</b> 바닥의 흔적처럼, 무엇인가를 관찰하거나 측정해서 얻은 사실을 <span class="word">데이터</span>라고 해요. 흔적(데이터)을 <b>많이</b>, <b>정확하게</b> 모을수록 무슨 일이 있었는지 더 잘 알아낼 수 있어요. 인공지능도 이렇게 데이터를 분석해서 판단한답니다.</div>
+  <div class="finish" data-m="m1"></div>
+</section>
+
+<!-- M2 -->
+<section class="m" id="m2" data-title="생활 속 AI" hidden>
+  <div class="m-head"><span class="eyebrow">미션 2 · 생활 속 인공지능</span><h2>우리 곁의 인공지능 찾기</h2>
+    <p class="lead"><span class="word">인공지능</span>이란 사람의 지능을 모방(다른 것을 본뜨거나 본받음)하여 대상의 이해, 새로운 내용의 학습, 사실 예측, 문제 해결 등의 작업을 수행하는 프로그램이에요. 우리 생활의 다양한 분야에서 쓰이고, 쓰이는 곳이 점점 넓어지고 있어요.</p></div>
+  <div class="life">
+    <div class="panel"><svg viewBox="0 0 200 120" aria-hidden="true"><rect x="70" y="20" width="60" height="90" rx="16" fill="#3C4A5C"/><circle cx="100" cy="70" r="20" fill="#56687B"/><circle cx="100" cy="70" r="10" fill="#2B3644"/><rect x="80" y="28" width="40" height="6" rx="3" fill="#5AE0FF"/><path d="M145 50 q12 20 0 40 M158 40 q20 30 0 60" stroke="#1F7FD6" stroke-width="5" fill="none" stroke-linecap="round"/><text x="30" y="40" font-size="26">♪</text><text x="38" y="80" font-size="22">♫</text></svg><h3>인공지능 스피커</h3><p class="small">“날씨에 어울리는 음악 틀어 줘.” 하고 말하면 날씨나 분위기에 맞는 음악을 골라서 들려줘요.</p></div>
+    <div class="panel"><svg viewBox="0 0 200 120" aria-hidden="true"><rect x="20" y="10" width="160" height="96" rx="8" fill="#1D2A39"/><g><rect x="30" y="20" width="44" height="36" rx="4" fill="#FFC22E"/><rect x="78" y="20" width="44" height="36" rx="4" fill="#1E9E66"/><rect x="126" y="20" width="44" height="36" rx="4" fill="#F0584A"/><rect x="30" y="60" width="44" height="36" rx="4" fill="#5AAEF5"/><rect x="78" y="60" width="44" height="36" rx="4" fill="#7A5AD8"/><rect x="126" y="60" width="44" height="36" rx="4" fill="#FF9F43"/></g><rect x="90" y="106" width="20" height="10" fill="#3C4A5C"/></svg><h3>인공지능 텔레비전</h3><p class="small">내가 자주 보던 프로그램을 기억했다가 좋아할 만한 프로그램을 골라서 보여 줘요.</p></div>
+    <div class="panel"><svg viewBox="0 0 200 120" aria-hidden="true"><rect x="80" y="20" width="44" height="84" rx="8" fill="#3C4A5C"/><rect x="85" y="28" width="34" height="62" rx="4" fill="#DCEEFD"/><rect x="10" y="10" width="64" height="30" rx="10" fill="#FFF3CF"/><text x="42" y="31" text-anchor="middle" font-size="13" font-family="Gowun Dodum, sans-serif" fill="#1D2A39">시청 가요?</text><rect x="128" y="10" width="64" height="30" rx="10" fill="#DDF5E9"/><text x="160" y="31" text-anchor="middle" font-size="13" font-family="Gowun Dodum, sans-serif" fill="#1D2A39">City Hall?</text><path d="M92 58 h20 M106 52 l6 6 -6 6" stroke="#1F7FD6" stroke-width="4" fill="none" stroke-linecap="round"/></svg><h3>인공지능 번역</h3><p class="small">“시청으로 어떻게 가야 하나요?”를 외국어로 바꿔 줘서 외국인과 대화할 수 있어요.</p></div>
+  </div>
+  <div class="panel">
+    <h3>생활용품에 인공지능 더하기</h3>
+    <p>우리가 사용하는 생활용품에 인공지능을 적용한다면 어떻게 활용할 수 있을지 상상해서 적어 보세요. 다 적으면 <b>예시 보기</b>로 다른 생각도 살펴봐요.</p>
+    <div class="idea"><div class="pic"><svg viewBox="0 0 80 80" aria-hidden="true"><path d="M40 46 C30 30 14 30 8 22 C24 22 34 30 40 46 C42 28 52 12 64 8 C56 22 48 34 40 46 C50 34 64 32 74 34 C62 40 50 42 40 46" fill="#2F9E44"/><path d="M24 50 h32 l-5 24 h-22z" fill="#E8935A"/></svg>화분</div>
+      <div style="display:grid;gap:8px"><textarea id="idea0" placeholder="예: 화분에 인공지능이 있다면…"></textarea><button class="btn ghost small" data-ex="0" style="justify-self:start;font-size:15px;padding:6px 12px">예시 보기</button><p class="ex" id="ex0" hidden>흙이 얼마나 말랐는지, 햇빛이 얼마나 드는지 데이터를 모아서 물을 줄 때가 되면 스스로 물을 주거나 알려 줘요.</p></div></div>
+    <div class="idea"><div class="pic"><svg viewBox="0 0 80 80" aria-hidden="true"><circle cx="22" cy="42" r="14" fill="none" stroke="#1D2A39" stroke-width="5"/><circle cx="58" cy="42" r="14" fill="none" stroke="#1D2A39" stroke-width="5"/><path d="M36 40 q4 -5 8 0 M8 38 l-6 -6 M72 38 l6 -6" stroke="#1D2A39" stroke-width="5" fill="none" stroke-linecap="round"/></svg>안경</div>
+      <div style="display:grid;gap:8px"><textarea id="idea1" placeholder="예: 안경에 인공지능이 있다면…"></textarea><button class="btn ghost small" data-ex="1" style="justify-self:start;font-size:15px;padding:6px 12px">예시 보기</button><p class="ex" id="ex1" hidden>눈앞에 보이는 외국어 간판을 우리말로 번역해서 보여 주거나, 길을 찾을 때 가는 방향을 화살표로 알려 줘요.</p></div></div>
+    <div class="idea"><div class="pic"><svg viewBox="0 0 80 80" aria-hidden="true"><rect x="12" y="12" width="56" height="56" rx="14" fill="none" stroke="var(--muted)" stroke-width="4" stroke-dasharray="8 6"/><text x="40" y="52" text-anchor="middle" font-family="Jua, sans-serif" font-size="30" fill="var(--muted)">?</text></svg>내가 써 보기</div>
+      <div style="display:grid;gap:8px"><input type="text" id="idea2name" placeholder="생활용품 이름 (예: 우산, 신발, 냉장고)"><textarea id="idea2" placeholder="어떻게 활용할 수 있을까요?"></textarea></div></div>
+    <p class="small muted">적은 내용은 이 컴퓨터에만 저장돼요.</p>
+  </div>
+  <div class="finish" data-m="m2"></div>
+</section>
+
+<!-- M3 -->
+<section class="m" id="m3" data-title="데이터 형태" hidden>
+  <div class="m-head"><span class="eyebrow">미션 3 · 데이터의 형태</span><h2>아날로그일까, 디지털일까?</h2>
+    <p class="lead">우리는 어떤 대상을 표현할 때 관련된 여러 값을 사용해요. 예를 들어 오늘 날씨는 아래와 같은 값으로 나타낼 수 있어요. 이렇게 대상을 관찰하거나 측정하여 얻은 사실이 <span class="word">데이터</span>예요.</p></div>
+  <div class="weather">
+    <div class="wv"><div class="l">기온</div><div class="v">18℃</div></div>
+    <div class="wv"><div class="l">습도</div><div class="v">55%</div></div>
+    <div class="wv"><div class="l">풍속</div><div class="v">3m/s</div></div>
+    <div class="wv"><div class="l">강수량</div><div class="v">0mm</div></div>
+    <div class="wv"><div class="l">자외선 지수</div><div class="v">4 보통</div></div>
+    <div class="wv"><div class="l">미세먼지 농도</div><div class="v">32㎍/㎥</div></div>
+  </div>
+  <div class="grid2">
+    <div class="panel form-a"><h3 style="color:var(--coral)">아날로그 데이터</h3><p>붓으로 그린 그림, 소리의 높낮이나 크기 등과 같이 <b>연속적인 변화</b>를 표현한 것이에요.</p><p class="small">예) 물감으로 그린 그림, 아날로그 체중계로 측정한 몸무게, 노래를 부르는 목소리, 손 글씨로 쓴 편지</p></div>
+    <div class="panel form-d"><h3 style="color:var(--sky)">디지털 데이터</h3><p>아날로그 데이터를 컴퓨터가 처리할 수 있는 <b>디지털 기호 형식</b>으로 변환한 것이에요.</p><p class="small">예) 스마트폰으로 촬영한 사진, 디지털 체중계로 측정한 몸무게, 온라인 생중계 영상의 소리, 누리 소통망의 글자·이미지</p></div>
+  </div>
+  <div class="panel">
+    <h3>함께 해 보기 · 데이터 형태 카드 놀이</h3>
+    <ol class="small" style="margin:0;padding-left:22px">
+      <li>3~4명이 한 모둠이 되어, 모든 카드를 뒷면이 보이도록 펼쳐 놓아요.</li>
+      <li>순서를 정하고 차례가 되면 카드를 두 장씩 뒤집어요.</li>
+      <li>두 장의 데이터가 <b>같은 형태</b>(아날로그끼리 또는 디지털끼리)이면 두 장을 가져가고, 다른 형태이면 다시 뒤집어 놓아요.</li>
+      <li>모든 카드를 가져가면 끝! 카드를 가장 많이 가진 사람이 이겨요.</li>
+    </ol>
+    <div class="row"><span class="small">인원</span>
+      <button class="btn ghost" data-np="2" style="padding:4px 12px">2명</button><button class="btn ghost" data-np="3" style="padding:4px 12px">3명</button><button class="btn ghost" data-np="4" style="padding:4px 12px">4명</button>
+      <button class="btn sun" id="mg-new" style="padding:4px 14px">새 게임</button></div>
+    <div class="players" id="mg-players"></div>
+    <p class="feedback" id="mg-fb" aria-live="polite"></p>
+    <div class="board" id="board"></div>
+  </div>
+  <div class="finish" data-m="m3"></div>
+</section>
+
+<!-- M4 -->
+<section class="m" id="m4" data-title="데이터 유형" hidden>
+  <div class="m-head"><span class="eyebrow">미션 4 · 인공지능과 데이터</span><h2>AI가 배우는 데이터의 종류</h2>
+    <p class="lead">사람이 지식과 경험을 통해 대상을 인식하고 결과를 예측하는 것처럼, 인공지능도 <span class="word">데이터를 학습</span>하여 대상을 인식(구별하고 이해하는 과정)하고 결과를 예측해요. 데이터는 인공지능을 만드는 재료가 돼요. 인공지능에 활용할 수 있는 데이터 유형에는 <b>글자, 숫자, 이미지, 소리</b> 등이 있어요.</p></div>
+  <div class="panel">
+    <h3>데이터 분류하기</h3>
+    <p class="small">① 아래 데이터 카드를 하나 누르고 ② 알맞은 상자를 누르세요.</p>
+    <div class="pool" id="pool"></div>
+    <div class="buckets" id="buckets">
+      <button class="bucket" data-b="t"><h4 style="color:var(--coral)">글자 · 숫자</h4><span class="small muted">표, 글, 기록</span><div class="got"></div></button>
+      <button class="bucket" data-b="i"><h4 style="color:#B07800">이미지</h4><span class="small muted">사진, 그림</span><div class="got"></div></button>
+      <button class="bucket" data-b="s"><h4 style="color:var(--grape)">소리</h4><span class="small muted">목소리, 음악, 녹음</span><div class="got"></div></button>
+    </div>
+    <p class="feedback" id="sort-fb" aria-live="polite"></p>
+  </div>
+  <div class="panel">
+    <h3>스스로 해 보기 · 국어사전 앱으로 데이터 탐색하기</h3>
+    <p>국어사전 애플리케이션은 세 가지 방법으로 검색할 수 있어요. 각 방법이 어떤 데이터를 인식하는지 골라 보세요.</p>
+    <div class="grid3" id="dict"></div>
+    <p class="small muted">교과서 QR로 연결되는 ‘퀵드로우’ 놀이처럼, 내가 그린 그림(이미지 데이터)을 인공지능이 알아맞히는 것도 같은 원리예요.</p>
+  </div>
+  <div class="cert" data-lesson="1"></div>
+  <div class="finish" data-m="m4"></div>
+</section>
+
+<!-- M5 -->
+<section class="m" id="m5" data-title="AI 학습 체험" hidden>
+  <div class="m-head"><span class="eyebrow">미션 5 · 인공지능 만들기 체험</span><h2>나만의 신호등 색 AI 훈련하기</h2>
+    <p class="lead">인공지능은 세 단계로 만들어져요. 엔트리에 들어가기 전에, 여기서 색깔 데이터를 직접 모아 <b>신호등 색 분류 모델</b>을 학습시켜 봐요.</p></div>
+  <div class="pipe">
+    <div class="st"><b>① 데이터 수집과 레이블링</b><span class="small">데이터를 모으고, 각각의 데이터에 이름(레이블)을 붙여요.</span></div><span class="ar">→</span>
+    <div class="st"><b>② 모델 생성 및 평가</b><span class="small">데이터를 학습해 모델을 만들고, 테스트 데이터로 잘 맞히는지 평가해요.</span></div><span class="ar">→</span>
+    <div class="st"><b>③ 모델 활용</b><span class="small">새로운 데이터를 넣어 사물을 인식하거나 분류해요.</span></div>
+  </div>
+  <div class="ml">
+    <div class="panel">
+      <div class="col-h">데이터 입력 <span class="small muted">클래스당 5개 이상</span></div>
+      <div id="classes" style="display:grid;gap:10px"></div>
+      <div class="row"><button class="btn ghost" id="bad-data" style="font-size:15px;padding:6px 12px">장난치기: 빨강에 초록 데이터 섞기</button><button class="btn ghost" id="reset-data" style="font-size:15px;padding:6px 12px">처음으로</button></div>
+    </div>
+    <div class="panel" style="align-content:start">
+      <div class="col-h">학습</div>
+      <p class="small">입력한 데이터로 모델을 학습해요.</p>
+      <button class="btn" id="train">모델 학습하기</button>
+      <div class="bar" aria-hidden="true"><i id="train-bar"></i></div>
+      <p class="small" id="train-msg">아직 학습하지 않았어요.</p>
+    </div>
+    <div class="panel" style="align-content:start">
+      <div class="col-h">결과 <span class="small muted">테스트 데이터</span></div>
+      <div class="row"><input type="color" id="test-color" value="#e8392a" aria-label="테스트할 색 고르기"><span class="small">색을 골라 넣거나 아래 예시를 눌러요.</span></div>
+      <div class="sw" id="test-sw"></div>
+      <div class="row" style="align-items:center;gap:16px">
+        <svg class="light" viewBox="0 0 80 200" aria-hidden="true"><rect x="8" y="4" width="64" height="176" rx="18" fill="#2B3440"/><circle id="L0" cx="40" cy="40" r="22" fill="#4A2A2A"/><circle id="L1" cx="40" cy="92" r="22" fill="#4A422A"/><circle id="L2" cx="40" cy="144" r="22" fill="#2A4A34"/><rect x="34" y="180" width="12" height="18" fill="#2B3440"/></svg>
+        <div style="display:grid;gap:4px;flex:1;min-width:0"><span class="small muted">분류한 클래스</span><span class="big-res" id="pred">?</span></div>
+      </div>
+      <div class="res" id="res"></div>
+    </div>
+  </div>
+  <div class="key"><b>알게 된 점 ·</b> 많은 양의 <b>정확한</b> 데이터를 학습할수록 인공지능의 성능은 높아져요. ‘장난치기’ 버튼으로 레이블이 틀린 데이터를 섞은 뒤 다시 학습해 보세요. 빨간색을 넣어도 결과가 헷갈리게 나올 거예요.</div>
+  <div class="finish" data-m="m5"></div>
+</section>
+
+<!-- M6 -->
+<section class="m" id="m6" data-title="엔트리: 강아지" hidden>
+  <div class="m-head"><span class="eyebrow">미션 6 · 엔트리 실습 1 (스스로 해 보기)</span><h2>갈색 푸들과 몰티즈를 구별하는 AI</h2>
+    <p class="lead">강아지 이미지 데이터를 모아 품종을 분류하는 인공지능 모델을 만들고, 카메라로 강아지 사진을 보여 주면 품종을 말해 주는 프로그램을 만들어요. 한 단계를 끝낼 때마다 눌러서 체크하세요.</p></div>
+  <div class="row"><a class="btn" href="https://playentry.org" target="_blank" rel="noopener" style="text-decoration:none">엔트리 열기 (playentry.org)</a><span class="small muted">새 탭에서 열려요. 작품 만들기로 들어가세요.</span></div>
+  <div class="panel">
+    <h3>1. 데이터 수집과 레이블링 · 모델 생성과 평가</h3>
+    <ol class="steps chk-list" data-key="dog">
+      <li class="chk"><span>블록 꾸러미에서 <span class="menu">인공지능</span>을 누르고 <span class="menu">인공지능 모델 학습하기</span>를 선택해요.</span></li>
+      <li class="chk"><span><span class="menu">분류: 이미지</span>를 고르고 <span class="menu">학습하기</span>를 눌러요. 이미지, 텍스트, 소리를 분류하는 모델을 만들 수 있어요.</span></li>
+      <li class="chk"><span>모델명에 <span class="menu">강아지 분류 모델</span>을 입력해요. 모델명은 한 번 정하면 바꿀 수 없으니 잘 정해요.</span></li>
+      <li class="chk"><span>클래스 이름을 <span class="menu">갈색 푸들</span>, <span class="menu">몰티즈</span>로 입력하고, 준비한 이미지를 각각 <b>5장 이상</b> 업로드해요. (<span class="menu">+ 클래스 추가하기</span>로 클래스를 늘릴 수 있어요.)</span></li>
+      <li class="chk"><span><span class="menu">모델 학습하기</span>를 눌러 모델을 만들어요. 학습이 100%가 될 때까지 기다려요.</span></li>
+      <li class="chk"><span>결과 칸에 <b>테스트 데이터</b>(학습에 쓰지 않은 사진) 한 개를 넣어 바르게 분류하는지 확인해요.</span></li>
+      <li class="chk"><span>오른쪽 위 <span class="menu">적용하기</span>를 눌러 만든 모델을 저장해요.</span></li>
+    </ol>
+  </div>
+  <div class="panel">
+    <h3>2. 모델 활용 · 프로그램 만들기</h3>
+    <ol class="steps chk-list" data-key="dog2">
+      <li class="chk"><span>카메라를 쓰기 위해 <span class="menu">인공지능 블록 불러오기</span> → <span class="menu">비디오 감지</span> → <span class="menu">사물 인식</span>을 선택하고 <span class="menu">불러오기</span>를 눌러요.</span></li>
+      <li class="chk"><span>아래 블록과 똑같이 조립해요.</span></li>
+      <li class="chk"><span>▶ 시작하기를 누르고, 갈색 푸들과 몰티즈 사진을 카메라에 보여 주며 바르게 말하는지 확인해요.</span></li>
+    </ol>
+    <div class="code"><div class="blocks">
+      <div class="blk ev">▶ 시작하기 버튼을 클릭했을 때</div>
+      <div class="blk vi">비디오 화면 <span class="slot">보이기 ▾</span><span class="cmt" style="color:#fff;opacity:.85">카메라 영상을 화면에 보여 줘요</span></div>
+      <div class="blk fl">계속 반복하기</div>
+      <div class="nest">
+        <div class="blk ai">비디오 화면을 학습한 모델로 분류 <span class="slot">시작하기 ▾</span></div>
+        <div class="blk fl">만일 <span class="cond">분류 결과가 <span class="slot">갈색 푸들 ▾</span> 인가?</span> (이)라면</div>
+        <div class="nest"><div class="blk lk"><span class="slot">갈색 푸들입니다.</span> 을(를) <span class="slot">말하기 ▾</span></div></div>
+        <div class="blk fl">아니면</div>
+        <div class="nest"><div class="blk lk"><span class="slot">몰티즈입니다.</span> 을(를) <span class="slot">말하기 ▾</span></div></div>
+      </div>
+    </div></div>
+    <p class="small muted">학습되어 있는 모델로 비디오 화면에 보이는 이미지를 분류해요. 잘 안 맞으면 사진을 더 많이, 더 다양하게 넣고 다시 학습해 보세요.</p>
+  </div>
+  <div class="finish" data-m="m6"></div>
+</section>
+
+<!-- M7 -->
+<section class="m" id="m7" data-title="엔트리: 신호등" hidden>
+  <div class="m-head"><span class="eyebrow">미션 7 · 엔트리 실습 2 (함께 해 보기)</span><h2>신호등을 알아보는 자율 주행 자동차</h2>
+    <p class="lead">신호등의 색을 인식해 분류하는 인공지능 모델을 만들고, 신호등 색에 따라 자동차가 움직이거나 멈추는 프로그램을 만들어요. 먼저 아래 미리 보기로 완성된 모습을 확인해 보세요.</p></div>
+  <div class="panel">
+    <h3>미리 보기 · 카메라가 본 신호등 색</h3>
+    <div class="sim"><svg viewBox="0 0 800 260" id="simsvg" role="img" aria-label="신호등과 자동차 미리 보기">
+      <rect width="800" height="260" fill="#BFE3FA"/>
+      <g fill="#FFFFFF"><ellipse cx="140" cy="60" rx="60" ry="20"/><ellipse cx="180" cy="50" rx="40" ry="22"/><ellipse cx="560" cy="80" rx="70" ry="20"/><ellipse cx="610" cy="66" rx="40" ry="20"/></g>
+      <rect y="170" width="800" height="90" fill="#9CA6B0"/><rect y="168" width="800" height="6" fill="#7E8892"/>
+      <g fill="#FFFFFF">
+        <rect x="20" y="212" width="60" height="6" rx="3"/><rect x="140" y="212" width="60" height="6" rx="3"/><rect x="260" y="212" width="60" height="6" rx="3"/><rect x="380" y="212" width="60" height="6" rx="3"/><rect x="500" y="212" width="60" height="6" rx="3"/><rect x="620" y="212" width="60" height="6" rx="3"/><rect x="740" y="212" width="60" height="6" rx="3"/></g>
+      <g transform="translate(360,20)"><rect x="0" y="0" width="150" height="54" rx="20" fill="#2B3440"/><circle id="S0" cx="30" cy="27" r="17" fill="#4A2A2A"/><circle id="S1" cx="75" cy="27" r="17" fill="#4A422A"/><circle id="S2" cx="120" cy="27" r="17" fill="#2A4A34"/><rect x="70" y="54" width="10" height="114" fill="#56606B"/></g>
+      <g id="car"><g id="carbody">
+        <rect x="-50" y="-26" width="100" height="30" rx="10" fill="#FFC22E"/><path d="M-30 -26 q10 -24 30 -24 h10 q16 0 24 24z" fill="#FFC22E"/><path d="M-22 -28 q8 -16 22 -16 h6 v16z" fill="#DCEEFD"/><path d="M12 -28 v-16 q10 0 18 16z" fill="#DCEEFD"/><rect x="40" y="-18" width="10" height="8" rx="3" fill="#FFF3CF"/>
+        <circle cx="-28" cy="6" r="11" fill="#1D2A39"/><circle cx="28" cy="6" r="11" fill="#1D2A39"/><circle cx="-28" cy="6" r="4" fill="#C9CED4"/><circle cx="28" cy="6" r="4" fill="#C9CED4"/></g></g>
+    </svg></div>
+    <div class="row">
+      <button class="btn coral" data-light="0">빨강 보여 주기</button>
+      <button class="btn sun" data-light="1">노랑 보여 주기</button>
+      <button class="btn leaf" data-light="2">초록 보여 주기</button>
+      <span class="feedback" id="sim-fb"></span>
+    </div>
+    <p class="small muted">신호등 색이 노랑일 때에는 멈추는 것이 더 안전해요. 그래서 노랑일 때도 0만큼 움직여요(멈춰요).</p>
+  </div>
+  <div class="panel">
+    <h3>1. 모델 생성 및 평가</h3>
+    <ol class="steps chk-list" data-key="tl">
+      <li class="chk"><span>엔트리 인공지능 블록 꾸러미에서 <span class="menu">인공지능 모델 학습하기</span> → <span class="menu">새로 만들기</span> → <span class="menu">분류: 이미지</span> → <span class="menu">학습하기</span>를 선택해요.</span></li>
+      <li class="chk"><span>모델 이름에 <span class="menu">신호등 색 분류 모델</span>을 입력해요.</span></li>
+      <li class="chk"><span><span class="menu">+ 클래스 추가하기</span>로 세 개의 클래스를 만들고, 클래스명을 <span class="menu">빨강</span> <span class="menu">노랑</span> <span class="menu">초록</span>으로 입력한 뒤 이미지를 각각 5장 이상 업로드해요. (교과서 128쪽 활동지 3 ‘자율 주행 로봇 신호등’을 이용해도 좋아요.)</span></li>
+      <li class="chk"><span><span class="menu">모델 학습하기</span>를 눌러 모델을 만들고, 테스트 데이터를 넣어 분류 결과를 확인해요.</span></li>
+      <li class="chk"><span><span class="menu">적용하기</span>를 눌러 만든 모델을 저장해요. 이 모델은 120쪽에서 다시 사용해요.</span></li>
+    </ol>
+  </div>
+  <div class="panel">
+    <h3>2. 모델 활용 · 오브젝트별 코드</h3>
+    <p class="small">오브젝트 두 개(신호등, 자동차)를 추가하고 각각 코드를 만들어요. 카메라를 쓰려면 미션 6처럼 <span class="menu">비디오 감지</span> 블록을 먼저 불러와요.</p>
+    <div class="grid2">
+      <div style="display:grid;gap:8px;min-width:0"><span class="chip a">신호등 오브젝트</span>
+        <div class="code"><div class="blocks">
+          <div class="blk ev">▶ 시작하기 버튼을 클릭했을 때</div>
+          <div class="blk lk"><span class="slot">신호등(2)_꺼짐 ▾</span> 모양으로 바꾸기</div>
+          <div class="blk vi">비디오 화면 <span class="slot">보이기 ▾</span></div>
+          <div class="blk ai">비디오 화면을 학습한 모델로 분류 <span class="slot">시작하기 ▾</span></div>
+          <div class="blk fl">계속 반복하기</div>
+          <div class="nest">
+            <div class="blk fl">만일 <span class="cond">분류 결과가 <span class="slot">빨강 ▾</span> 인가?</span> (이)라면</div>
+            <div class="nest"><div class="blk lk"><span class="slot">신호등(2)_빨강 ▾</span> 모양으로 바꾸기</div></div>
+            <div class="blk fl">만일 <span class="cond">분류 결과가 <span class="slot">노랑 ▾</span> 인가?</span> (이)라면</div>
+            <div class="nest"><div class="blk lk"><span class="slot">신호등(2)_노랑 ▾</span> 모양으로 바꾸기</div></div>
+            <div class="blk fl">만일 <span class="cond">분류 결과가 <span class="slot">초록 ▾</span> 인가?</span> (이)라면</div>
+            <div class="nest"><div class="blk lk"><span class="slot">신호등(2)_초록 ▾</span> 모양으로 바꾸기</div></div>
+          </div>
+        </div></div></div>
+      <div style="display:grid;gap:8px;min-width:0"><span class="chip">자동차 오브젝트</span>
+        <div class="code"><div class="blocks">
+          <div class="blk ev">▶ 시작하기 버튼을 클릭했을 때</div>
+          <div class="blk fl">계속 반복하기</div>
+          <div class="nest">
+            <div class="blk fl">만일 <span class="cond">분류 결과가 <span class="slot">초록 ▾</span> 인가?</span> (이)라면</div>
+            <div class="nest"><div class="blk mv">이동 방향으로 <span class="slot">1</span> 만큼 움직이기</div></div>
+            <div class="blk fl">만일 <span class="cond">분류 결과가 <span class="slot">노랑 ▾</span> 인가?</span> (이)라면</div>
+            <div class="nest"><div class="blk mv">이동 방향으로 <span class="slot">0</span> 만큼 움직이기</div></div>
+            <div class="blk fl">만일 <span class="cond">분류 결과가 <span class="slot">빨강 ▾</span> 인가?</span> (이)라면</div>
+            <div class="nest"><div class="blk mv">이동 방향으로 <span class="slot">0</span> 만큼 움직이기</div></div>
+            <div class="blk mv">화면 끝에 닿으면 튕기기</div>
+          </div>
+        </div></div>
+        <p class="small muted">자동차 오브젝트의 회전 방식을 <b>↔(좌우)</b>로 설정하면 화면 끝에서 좌우로 방향을 바꿔요.</p></div>
+    </div>
+    <ol class="steps chk-list" data-key="tl2">
+      <li class="chk"><span>신호등 오브젝트 코드를 완성했어요.</span></li>
+      <li class="chk"><span>자동차 오브젝트 코드를 완성하고 회전 방식을 ↔로 바꿨어요.</span></li>
+      <li class="chk"><span>신호등 그림을 카메라에 보여 주며 자동차가 바르게 움직이고 멈추는지 확인했어요.</span></li>
+    </ol>
+  </div>
+  <div class="finish" data-m="m7"></div>
+</section>
+
+<!-- M8 -->
+<section class="m" id="m8" data-title="AI와 사회" hidden>
+  <div class="m-head"><span class="eyebrow">미션 8 · 인공지능과 사회</span><h2>인공지능이 바꾸는 우리 사회</h2>
+    <p class="lead">인공지능은 우리 사회의 여러 분야에서 다양한 방식으로 발전을 이끌고 있어요. 이런 발전은 편리함을 주지만, 때로는 새로운 노력과 도전을 요구하기도 해요. 카드를 눌러 인공지능이 어떻게 돕는지 확인해 보세요.</p></div>
+  <div class="grid3" id="society"></div>
+  <div class="panel">
+    <h3>직업은 어떻게 바뀔까?</h3>
+    <p>기존 직업이 자동화되거나, 인공지능과 협업하여 새로운 형태의 직업으로 바뀌기도 해요. 인공지능을 개발하고 관리하는 새로운 직업도 생기고 있어요. 직업 카드를 골라 알맞은 상자에 넣어 보세요.</p>
+    <div class="pool" id="jobpool"></div>
+    <div class="buckets" id="jobbuckets">
+      <button class="bucket" data-b="auto"><h4 style="color:var(--coral)">인공지능에 의해 자동화가 가능한 직업</h4><div class="got"></div></button>
+      <button class="bucket" data-b="co"><h4 style="color:var(--leaf)">인공지능과 협업하는 직업</h4><div class="got"></div></button>
+    </div>
+    <p class="feedback" id="job-fb" aria-live="polite"></p>
+  </div>
+  <div class="gen">
+    <h3>지식 충전소 · 상상을 현실로 만드는 생성형 인공지능</h3>
+    <div class="grid2">
+      <p>사용자가 글자나 이미지를 활용해 궁금한 점을 질문하면, 이를 바탕으로 <b>글을 작성</b>해 답변해요. 긴 글을 <b>요약</b>하거나 <b>번역</b>할 수 있고, 사람처럼 <b>대화</b>를 주고받으며 창의적인 글쓰기도 할 수 있어요.</p>
+      <p>사용자의 요청에 따라 글자와 이미지를 활용해 창의적이고 독창적인 <b>이미지</b>나 <b>비디오</b> 콘텐츠를 만들어 내기도 해요. 예를 들어 “날개를 달고 하늘을 나는 판다”를 그려 달라고 할 수 있어요.</p>
+    </div>
+  </div>
+  <div class="panel">
+    <h3>스스로 해 보기 · 인공지능 스마트팜 체험</h3>
+    <ol class="steps">
+      <li><span>인공지능 스마트팜 체험 누리집에 접속해 인공지능 로봇과 함께 스마트팜 경영자가 되어 봐요. <a href="https://www.playsw.or.kr/ai-contents/practice/1" target="_blank" rel="noopener">스마트팜 체험하러 가기</a></span></li>
+      <li><span>스마트팜과 관련하여 농업 관련 직업에 어떤 변화가 일어날지 친구들과 이야기해 봐요.</span></li>
+    </ol>
+    <textarea id="farm" placeholder="농업 관련 직업은 이렇게 바뀔 것 같아요…"></textarea>
+  </div>
+  <div class="panel">
+    <h3>이야기해 봐요 · 인공지능을 올바르게 사용하려면?</h3>
+    <div class="row" id="ethics"></div>
+    <textarea id="ethic-note" placeholder="우리 모둠의 생각을 적어 보세요."></textarea>
+  </div>
+  <div class="finish" data-m="m8"></div>
+</section>
+
+<!-- M9 -->
+<section class="m" id="m9" data-title="마무리 퀴즈" hidden>
+  <div class="m-head"><span class="eyebrow">미션 9 · 정리하기</span><h2>데이터와 인공지능 마무리 퀴즈</h2>
+    <p class="lead">오늘 배운 내용을 떠올리며 문제를 풀어 보세요. 답을 누르면 바로 정답을 알려 줘요.</p></div>
+  <div class="qz" id="quiz"></div>
+  <div class="score" id="qscore" hidden></div>
+  <div class="row"><button class="btn ghost" id="qreset">다시 풀기</button></div>
+  <div class="cert" data-lesson="2"></div>
+  <div class="finish" data-m="m9"></div>
+</section>
+
+</main>
+
+<script>
+(function(){
+var store={get:function(k,d){try{var v=localStorage.getItem('ailab:'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},
+           set:function(k,v){try{localStorage.setItem('ailab:'+k,JSON.stringify(v))}catch(e){}}};
+function $(s,r){return (r||document).querySelector(s)}
+function $$(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function el(tag,attrs,html){var e=document.createElement(tag);if(attrs)for(var k in attrs){if(k==='class')e.className=attrs[k];else e.setAttribute(k,attrs[k])}if(html!=null)e.innerHTML=html;return e}
+
+/* ---------- navigation ---------- */
+var sections=$$('section.m');
+var plan={m1:['m1','m2','m3','m4'],m2:['m5','m6','m7','m8','m9']};
+var times={m1:'5분',m2:'7분',m3:'15분',m4:'13분',m5:'8분',m6:'14분',m7:'10분',m8:'6분',m9:'2분'};
+var done=store.get('done',{});
+var tabs=$('#tabs');
+sections.forEach(function(s,i){
+  if(i===1){tabs.appendChild(el('span',{class:'tab sep'},'1차시'))}
+  if(i===5){tabs.appendChild(el('span',{class:'tab sep'},'2차시'))}
+  var b=el('button',{class:'tab','data-go':s.id},(i?'<span class="n">'+i+'</span>':'<span class="n">⌂</span>')+s.dataset.title);
+  tabs.appendChild(b);
+});
+['plan1','plan2'].forEach(function(p,pi){
+  var ol=$('#'+p);(pi?plan.m2:plan.m1).forEach(function(id){
+    var s=$('#'+id);var li=el('li',null,'<span class="chip">'+id.slice(1)+'</span><button data-go="'+id+'">'+s.dataset.title+'</button><span class="t">'+times[id]+'</span>');ol.appendChild(li)});
+});
+function show(id){
+  if(!$('#'+id))id='m0';
+  sections.forEach(function(s){s.hidden=s.id!==id});
+  $$('.tab[data-go]').forEach(function(t){t.setAttribute('aria-current',t.dataset.go===id?'true':'false')});
+  var cur=$('.tab[aria-current="true"]');if(cur&&cur.scrollIntoView)cur.scrollIntoView({block:'nearest',inline:'center'});
+  window.scrollTo(0,0);store.set('tab',id);
+  try{history.replaceState(null,'','#'+id)}catch(e){}
+}
+document.addEventListener('click',function(e){var g=e.target.closest('[data-go]');if(g){show(g.dataset.go)}});
+function refreshDone(){
+  var n=0;for(var k in done)if(done[k])n++;
+  $('#stars').textContent='★ '+n+' / 9 미션';
+  $$('.tab[data-go]').forEach(function(t){t.classList.toggle('done',!!done[t.dataset.go])});
+  $$('.finish').forEach(function(f){var b=$('.stamp',f);if(b)b.setAttribute('aria-pressed',done[f.dataset.m]?'true':'false');if(b)b.textContent=done[f.dataset.m]?'★ 미션 완료!':'☆ 미션 완료 도장 찍기'});
+}
+$$('.finish').forEach(function(f){
+  var id=f.dataset.m;var idx=+id.slice(1);
+  var stamp=el('button',{class:'stamp','aria-pressed':'false'},'');
+  stamp.addEventListener('click',function(){done[id]=!done[id];store.set('done',done);refreshDone()});
+  var nav=el('div',{class:'navbtns'});
+  nav.appendChild(el('button',{class:'btn ghost','data-go':'m'+(idx-1)},'← 이전'));
+  if(idx<9)nav.appendChild(el('button',{class:'btn','data-go':'m'+(idx+1)},'다음 미션 →'));
+  else nav.appendChild(el('button',{class:'btn','data-go':'m0'},'처음으로'));
+  f.appendChild(stamp);f.appendChild(nav);
+});
+refreshDone();
+var start=(location.hash||'').replace('#','')||store.get('tab','m0');
+show(start);
+
+/* ---------- M1 clues ---------- */
+var clues=[
+ ['발톱으로 긁은 자국','진열대 다리 옆에 발톱 자국이 있어요. 걸을 때 발톱이 밖으로 나와 있는 동물이 긁었나 봐요.'],
+ ['바닥에 찍힌 발자국','사람 신발 자국이 아니라 네 발 동물의 발자국이에요. 발가락 끝에 발톱 자국도 함께 찍혀 있어요.'],
+ ['바닥에 떨어진 동물의 털','갈색의 곱슬곱슬한 털이 떨어져 있어요. 털 색과 모양으로 어떤 동물인지 좁혀 볼 수 있어요.'],
+ ['바나나에 찍힌 동물의 잇자국','바나나를 먹으려다 남긴 동물의 잇자국이에요. 배가 고파서 들어왔나 봐요.']
+];
+var found=[false,false,false,false];
+function drawNotes(){
+  var nb=$('#notebook');nb.innerHTML='';var c=0;
+  clues.forEach(function(cl,i){
+    if(found[i])c++;
+    nb.appendChild(el('div',{class:'note'+(found[i]?'':' empty')},'<span class="ic">'+(i+1)+'</span><div>'+(found[i]?'<b>'+cl[0]+'</b><br><span class="small">'+cl[1]+'</span>':'<span class="small">아직 찾지 못한 흔적</span>')+'</div>'));
+  });
+  $('#clue-count').textContent=c+' / 4';
+  var ok=c>=3;$$('.suspect').forEach(function(b){b.disabled=!ok});
+  $('#who-lock').textContent=ok?'모은 흔적(데이터)을 보고 범인을 골라 보세요.':'흔적을 3개 이상 찾으면 추리할 수 있어요.';
+}
+$$('.clue').forEach(function(g){
+  function hit(){var i=+g.dataset.c;found[i]=true;g.classList.add('found');drawNotes()}
+  g.addEventListener('click',hit);g.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();hit()}});
+});
+drawNotes();
+var whyS={dog:['ok','정답이에요! 네 발 동물의 발자국, 발톱 자국, 갈색 곱슬 털이 모두 곱슬 털 강아지를 가리켜요. 여러 데이터를 함께 분석하니 더 확실하게 알 수 있었죠?'],
+  cat:['no','고양이는 걸을 때 발톱을 숨겨서 발자국에 발톱 자국이 잘 남지 않아요. 털 데이터도 다시 확인해 보세요.'],
+  human:['no','바닥의 발자국은 사람 신발 자국이 아니라 동물 발자국이에요. 흔적을 다시 살펴보세요.']};
+$$('.suspect').forEach(function(b){b.addEventListener('click',function(){
+  var r=whyS[b.dataset.s];$$('.suspect').forEach(function(x){x.classList.remove('right','wrong')});
+  b.classList.add(r[0]==='ok'?'right':'wrong');var fb=$('#who-fb');fb.className='feedback '+r[0];fb.textContent=r[1];
+})});
+
+/* ---------- M2 ideas ---------- */
+['idea0','idea1','idea2','idea2name','farm','ethic-note'].forEach(function(id){
+  var t=$('#'+id);t.value=store.get('txt:'+id,'');t.addEventListener('input',function(){store.set('txt:'+id,t.value)});
+});
+$$('[data-ex]').forEach(function(b){b.addEventListener('click',function(){var p=$('#ex'+b.dataset.ex);p.hidden=!p.hidden;b.textContent=p.hidden?'예시 보기':'예시 숨기기'})});
+
+/* ---------- M3 memory game ---------- */
+var A=[['🎨','물감으로 그린 그림'],['⚖️','아날로그 체중계로 잰 몸무게'],['🎤','노래를 부르는 목소리'],['✉️','손 글씨로 쓴 편지'],['🕰️','바늘이 도는 시계'],['🌡️','막대 온도계의 눈금'],['📏','자로 잰 키'],['🎻','바이올린 연주 소리']];
+var D=[['📱','스마트폰으로 찍은 사진'],['🔢','디지털 체중계로 잰 몸무게'],['📺','온라인 생중계 영상의 소리'],['💬','누리 소통망의 글자'],['⌚','숫자로 나오는 전자시계'],['📖','태블릿으로 보는 전자책'],['🎧','음원 파일(mp3)'],['🖼️','태블릿으로 그린 그림']];
+var np=store.get('np',3),mg;
+function newGame(){
+  var deck=shuffle(A.map(function(x){return{e:x[0],t:x[1],f:'a'}}).concat(D.map(function(x){return{e:x[0],t:x[1],f:'d'}})));
+  mg={deck:deck,up:[],taken:{},scores:[],turn:0,lock:false};for(var i=0;i<np;i++)mg.scores.push(0);
+  var bd=$('#board');bd.innerHTML='';
+  deck.forEach(function(c,i){
+    var b=el('button',{class:'card','aria-label':'카드 '+(i+1)},'<div class="in"><div class="back"><span>?</span></div><div class="face"><span class="e">'+c.e+'</span><span class="t">'+c.t+'</span><span class="f"></span></div></div>');
+    b.addEventListener('click',function(){flip(i,b)});bd.appendChild(b);
+  });
+  $$('[data-np]').forEach(function(b){b.className='btn '+(+b.dataset.np===np?'':'ghost')});
+  drawPlayers();say('모둠원 1부터 카드 두 장을 뒤집어 보세요.','');
+}
+function say(t,c){var f=$('#mg-fb');f.textContent=t;f.className='feedback '+(c||'')}
+function drawPlayers(){var p=$('#mg-players');p.innerHTML='';mg.scores.forEach(function(s,i){p.appendChild(el('span',{class:'pl'+(i===mg.turn?' on':'')},'모둠원 '+(i+1)+' · '+s+'장'))})}
+function fname(f){return f==='a'?'아날로그':'디지털'}
+function flip(i,b){
+  if(mg.lock||mg.taken[i]||mg.up.indexOf(i)>=0)return;
+  b.classList.add('up');mg.up.push(i);
+  if(mg.up.length<2)return;
+  mg.lock=true;var x=mg.up[0],y=mg.up[1],cx=mg.deck[x],cy=mg.deck[y];var cards=$$('#board .card');
+  [x,y].forEach(function(k){var c=mg.deck[k];var f=$('.f',cards[k]);f.textContent=fname(c.f);f.style.color=c.f==='a'?'var(--coral)':'var(--sky)';$('.face',cards[k]).className='face '+(c.f==='a'?'form-a':'form-d')});
+  var same=cx.f===cy.f;
+  if(same)say('둘 다 '+fname(cx.f)+' 데이터! 모둠원 '+(mg.turn+1)+'이 카드 두 장을 가져가요.','ok');
+  else say('‘'+cx.t+'’는 '+fname(cx.f)+', ‘'+cy.t+'’는 '+fname(cy.f)+' 데이터라서 다시 뒤집어요.','no');
+  setTimeout(function(){
+    if(same){mg.taken[x]=mg.taken[y]=true;mg.scores[mg.turn]+=2;cards[x].classList.add('taken');cards[y].classList.add('taken')}
+    else{[x,y].forEach(function(k){cards[k].classList.remove('up');var f=$('.f',cards[k]);setTimeout(function(){f.textContent='';$('.face',cards[k]).className='face'},300)})}
+    mg.up=[];mg.turn=(mg.turn+1)%np;mg.lock=false;drawPlayers();
+    if(Object.keys(mg.taken).length===16){var max=Math.max.apply(null,mg.scores);var w=[];mg.scores.forEach(function(s,i){if(s===max)w.push('모둠원 '+(i+1))});say('놀이 끝! '+w.join(', ')+' 승리 ('+max+'장)','ok')}
+    else{setTimeout(function(){if(!mg.lock&&mg.up.length===0)say('모둠원 '+(mg.turn+1)+' 차례예요.','')},1200)}
+  },same?1100:1700);
+}
+$$('[data-np]').forEach(function(b){b.addEventListener('click',function(){np=+b.dataset.np;store.set('np',np);newGame()})});
+$('#mg-new').addEventListener('click',newGame);
+newGame();
+
+/* ---------- sorting helper ---------- */
+function sorter(poolSel,bucketSel,fbSel,items,msgs){
+  var pool=$(poolSel),sel=null,left=items.length;
+  shuffle(items).forEach(function(it){
+    var b=el('button',{class:'item'},it.t);b._it=it;
+    b.addEventListener('click',function(){if(b.classList.contains('ok'))return;$$('.item',pool).forEach(function(x){x.classList.remove('sel')});sel=b;b.classList.add('sel');$$(bucketSel+' .bucket').forEach(function(k){k.classList.add('ready')})});
+    pool.appendChild(b);
+  });
+  $$(bucketSel+' .bucket').forEach(function(k){k.addEventListener('click',function(){
+    var fb=$(fbSel);if(!sel){fb.className='feedback';fb.textContent='먼저 위의 카드를 하나 골라 주세요.';return}
+    $$(bucketSel+' .bucket').forEach(function(x){x.classList.remove('ready')});
+    if(sel._it.b===k.dataset.b){var c=el('span',{class:'item ok'},sel._it.t);$('.got',k).appendChild(c);sel.remove();left--;fb.className='feedback ok';fb.textContent=left?'맞아요! '+(sel._it.why||''):msgs.done}
+    else{fb.className='feedback no';fb.textContent='다시 생각해 봐요. '+(sel._it.hint||'');sel.classList.remove('sel')}
+    sel=null;
+  })});
+}
+sorter('#pool','#buckets','#sort-fb',[
+  {t:'📊 우리 반 키 기록표',b:'t'},{t:'📝 오늘 쓴 일기',b:'t'},{t:'🌡️ 일주일 기온 표',b:'t'},{t:'💬 친구에게 보낸 문자',b:'t'},
+  {t:'🐶 강아지 사진',b:'i'},{t:'🚦 신호등 사진',b:'i'},{t:'✏️ 공책에 그린 그림을 찍은 사진',b:'i',hint:'그림을 찍은 사진은 어떤 데이터일까요?'},
+  {t:'🎵 노래 파일',b:'s'},{t:'🐦 새소리 녹음',b:'s'},{t:'🗣️ “시청으로 어떻게 가야 하나요?” 목소리',b:'s'}
+],{done:'모두 분류했어요! 인공지능은 글자·숫자, 이미지, 소리 데이터를 모두 학습할 수 있어요.'});
+
+var dict=[['키보드 입력기','키보드로 검색창에 글자, 숫자를 입력하면 검색 결과를 보여 줘요.','t'],['문자 인식기','사진 속의 문자를 인식하여 검색 결과를 보여 줘요.','i'],['음성 인식','목소리를 인식하여 검색 결과를 보여 줘요.','s']];
+var dn={t:'글자·숫자',i:'이미지',s:'소리'};
+dict.forEach(function(d){
+  var p=el('div',{class:'panel',style:'padding:14px'},'<h4 style="font-size:19px">'+d[0]+'</h4><p class="small">'+d[1]+'</p><div class="opts"></div><p class="feedback small"></p>');
+  var o=$('.opts',p);['t','i','s'].forEach(function(k){var b=el('button',null,dn[k]+' 데이터');b.addEventListener('click',function(){
+    $$('button',o).forEach(function(x){x.classList.remove('right','wrong')});var ok=k===d[2];b.classList.add(ok?'right':'wrong');
+    var f=$('.feedback',p);f.className='feedback small '+(ok?'ok':'no');f.textContent=ok?'정답! '+dn[k]+' 데이터를 인식해요.':'다시 골라 보세요.'});o.appendChild(b)});
+  $('#dict').appendChild(p);
+});
+
+/* ---------- M5 classifier ---------- */
+function hsl2hex(h,s,l){s/=100;l/=100;var a=s*Math.min(l,1-l);function f(n){var k=(n+h/30)%12;var c=l-a*Math.max(Math.min(k-3,9-k,1),-1);return Math.round(255*c).toString(16).padStart(2,'0')}return '#'+f(0)+f(8)+f(4)}
+function rnd(a,b){return a+Math.random()*(b-a)}
+var hueR={r:function(){var h=rnd(-8,8);return (h+360)%360},y:function(){return rnd(44,56)},g:function(){return rnd(110,150)}};
+function randColor(k){return hsl2hex(hueR[k](),rnd(75,100),rnd(42,58))}
+var CL=[{k:'r',name:'빨강',lamp:'#FF3B30',off:'#4A2A2A'},{k:'y',name:'노랑',lamp:'#FFD60A',off:'#4A422A'},{k:'g',name:'초록',lamp:'#2EE06A',off:'#2A4A34'}];
+var data,model=null,dirty=false;
+function initData(){data={r:[],y:[],g:[]};CL.forEach(function(c){for(var i=0;i<3;i++)data[c.k].push(randColor(c.k))});model=null;dirty=false}
+initData();
+function hex2rgb(h){var n=parseInt(h.slice(1),16);return[(n>>16&255)/255,(n>>8&255)/255,(n&255)/255]}
+function drawClasses(){
+  var box=$('#classes');box.innerHTML='';
+  CL.forEach(function(c){
+    var n=data[c.k].length;
+    var d=el('div',{class:'cls'},'<div class="cls-top"><span><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:'+c.lamp+';vertical-align:middle;margin-right:6px"></span>'+c.name+'</span><span class="small" style="font-variant-numeric:tabular-nums">'+n+'개</span></div><div class="sw"></div><div class="ctrl"><button class="btn ghost" data-add="'+c.k+'">+ 예시 데이터</button><input type="color" value="'+data[c.k][0]+'" aria-label="'+c.name+'에 넣을 색"><button class="btn ghost" data-addc="'+c.k+'">고른 색 넣기</button><span class="need '+(n>=5?'ok':'')+'">'+(n>=5?'학습 준비 완료':(5-n)+'개 더 필요해요')+'</span></div>');
+    var sw=$('.sw',d);data[c.k].forEach(function(col,i){var b=el('button',{title:'눌러서 빼기','aria-label':c.name+' 데이터 '+(i+1)+' 빼기'});b.style.background=col;b.addEventListener('click',function(){data[c.k].splice(i,1);dirty=true;drawClasses()});sw.appendChild(b)});
+    $('[data-add]',d).addEventListener('click',function(){data[c.k].push(randColor(c.k));dirty=true;drawClasses()});
+    $('[data-addc]',d).addEventListener('click',function(){data[c.k].push($('input[type=color]',d).value);dirty=true;drawClasses()});
+    box.appendChild(d);
+  });
+  var ready=CL.every(function(c){return data[c.k].length>=5});
+  $('#train').disabled=!ready;
+  if(!ready)$('#train-msg').textContent='모든 클래스에 데이터를 5개 이상 넣어야 학습할 수 있어요.';
+  else if(model&&dirty)$('#train-msg').textContent='데이터가 바뀌었어요. 다시 학습해 보세요.';
+  else if(!model)$('#train-msg').textContent='준비 완료! 모델 학습하기를 눌러요.';
+}
+$('#train').addEventListener('click',function(){
+  var bar=$('#train-bar'),p=0;$('#train').disabled=true;$('#train-msg').textContent='모델 학습 중…';
+  var t=setInterval(function(){p+=10;bar.style.width=p+'%';if(p>=100){clearInterval(t);
+    model={};CL.forEach(function(c){var s=[0,0,0];data[c.k].forEach(function(h){var v=hex2rgb(h);s[0]+=v[0];s[1]+=v[1];s[2]+=v[2]});var n=data[c.k].length;model[c.k]=[s[0]/n,s[1]/n,s[2]/n]});
+    dirty=false;$('#train').disabled=false;$('#train-msg').textContent='모델 학습을 완료했어요. 100%  이제 오른쪽에서 테스트해 봐요.';predict()}},90);
+});
+function predict(){
+  var col=$('#test-color').value;
+  if(!model){$('#pred').textContent='학습이 필요해요';$('#res').innerHTML='';CL.forEach(function(c,i){$('#L'+i).setAttribute('fill',c.off)});return}
+  var v=hex2rgb(col),sc=[],sum=0;
+  CL.forEach(function(c){var m=model[c.k];var d=Math.sqrt(Math.pow(v[0]-m[0],2)+Math.pow(v[1]-m[1],2)+Math.pow(v[2]-m[2],2));var e=Math.exp(-d*9);sc.push(e);sum+=e});
+  var best=0;sc=sc.map(function(s){return s/sum});sc.forEach(function(s,i){if(s>sc[best])best=i});
+  $('#pred').textContent=CL[best].name;$('#pred').style.color='';
+  CL.forEach(function(c,i){$('#L'+i).setAttribute('fill',i===best?c.lamp:c.off)});
+  var r=$('#res');r.innerHTML='';
+  CL.forEach(function(c,i){r.appendChild(el('div',{class:'r'},'<span>'+c.name+'</span><div class="bar"><i style="width:'+(sc[i]*100).toFixed(1)+'%;background:'+c.lamp+'"></i></div><span style="text-align:right">'+(sc[i]*100).toFixed(1)+'%</span>'))});
+}
+$('#test-color').addEventListener('input',predict);
+[['#e8392a','빨간 불'],['#f7c400','노란 불'],['#22b455','초록 불'],['#ff8a00','주황색'],['#9be22d','연두색'],['#7a1010','어두운 빨강']].forEach(function(t){
+  var b=el('button',{title:t[1],'aria-label':'테스트: '+t[1]});b.style.background=t[0];b.addEventListener('click',function(){$('#test-color').value=t[0];predict()});$('#test-sw').appendChild(b)});
+$('#bad-data').addEventListener('click',function(){for(var i=0;i<6;i++)data.r.push(randColor('g'));dirty=true;drawClasses();$('#train-msg').textContent='빨강 클래스에 초록 데이터 6개를 잘못 넣었어요! 다시 학습하고 빨간 불을 테스트해 보세요.'});
+$('#reset-data').addEventListener('click',function(){initData();$('#train-bar').style.width='0';drawClasses();predict()});
+drawClasses();predict();
+
+/* ---------- checklists ---------- */
+$$('.chk-list').forEach(function(ol){
+  var key='chk:'+ol.dataset.key,st=store.get(key,[]);
+  $$('li.chk',ol).forEach(function(li,i){li.tabIndex=0;li.setAttribute('role','checkbox');
+    function upd(){li.classList.toggle('on',!!st[i]);li.setAttribute('aria-checked',st[i]?'true':'false')}
+    function tog(){st[i]=!st[i];store.set(key,st);upd()}
+    li.addEventListener('click',function(e){if(e.target.closest('a'))return;tog()});li.addEventListener('keydown',function(e){if(e.key===' '||e.key==='Enter'){e.preventDefault();tog()}});upd()});
+});
+
+/* ---------- M7 sim ---------- */
+var sim={c:-1,x:120,dir:1};var SL=[['#FF3B30','#4A2A2A'],['#FFD60A','#4A422A'],['#2EE06A','#2A4A34']];
+var simMsg=['빨강! 자동차가 0만큼 움직여요. 멈춤!','노랑! 안전하게 0만큼 움직여요. 멈춤!','초록! 자동차가 이동 방향으로 1만큼씩 움직여요.'];
+$$('[data-light]').forEach(function(b){b.addEventListener('click',function(){sim.c=+b.dataset.light;for(var i=0;i<3;i++)$('#S'+i).setAttribute('fill',i===sim.c?SL[i][0]:SL[i][1]);$('#sim-fb').textContent=simMsg[sim.c]})});
+function drawCar(){$('#car').setAttribute('transform','translate('+sim.x.toFixed(1)+',196)');$('#carbody').setAttribute('transform','scale('+sim.dir+',1)')}
+function tick(){if(sim.c===2){sim.x+=2.2*sim.dir;if(sim.x>745){sim.x=745;sim.dir=-1}if(sim.x<55){sim.x=55;sim.dir=1}drawCar()}requestAnimationFrame(tick)}
+drawCar();requestAnimationFrame(tick);
+
+/* ---------- M8 ---------- */
+[['🔥 가스레인지에서 불이 났어요!','인공지능은 위급 상황을 감지하여 미리 설정된 곳(119)으로 연락해 알림을 보내요.'],
+ ['🌳 숲속 야생 동물을 지켜야 해요','인공지능 드론은 야생 동물의 개체 수를 파악하고, 밀렵꾼의 활동을 감시해요.'],
+ ['🚗 운전하는 사람이 없는 자동차','자율 주행 자동차는 주변 교통 상황을 인식하고 판단하여 주행해요.'],
+ ['📚 친구마다 공부 속도가 달라요','인공지능은 학생 개인별 학습 수준을 파악하여 맞춤형 학습을 제공해요.'],
+ ['🏥 병원에 누워 있는 환자','인공지능은 환자의 건강 상태(체온, 혈압 등)를 실시간으로 진단하고 분석해요.'],
+ ['🧊 냉장고 속 음식이 상할까 걱정돼요','냉장고 안의 식재료 종류와 소비 기한을 알려 주고, 필요한 것은 주문할 수 있도록 도와줘요.'],
+ ['👵 혼자 계신 할머니','인공지능 로봇은 대화나 놀이, 정서적 교감을 통해 사람과 상호 작용하며 즐거움을 줘요.']
+].forEach(function(s){var b=el('button',{class:'flip'},'<span class="q">'+s[0]+'</span><span class="hint">인공지능은 어떻게 도와줄까요? 생각한 뒤 눌러 보세요.</span><span class="a" hidden>'+s[1]+'</span>');
+  b.addEventListener('click',function(){var a=$('.a',b);a.hidden=!a.hidden;$('.hint',b).hidden=!a.hidden;b.classList.toggle('open',!a.hidden)});$('#society').appendChild(b)});
+sorter('#jobpool','#jobbuckets','#job-fb',[
+  {t:'🏭 제조업 종사자',b:'auto',why:'인공지능 로봇이 사람을 대신해 일하며 제조 공정의 효율성을 높이고 오류를 줄여요.'},
+  {t:'🎧 고객 서비스 담당자',b:'auto',why:'인공지능 챗봇과 음성 인식 기술이 간단한 고객 문의를 대신 처리해요.'},
+  {t:'⌨️ 데이터 입력자',b:'auto',why:'사람이 일일이 입력해야 했던 데이터를 인공지능이 빠르고 정확하게 처리해요.'},
+  {t:'🧑‍🏫 교육 전문가',b:'co',why:'인공지능이 학생의 학습 성향을 분석해 맞춤형 학습 과정을 제안하면, 교육 전문가가 이를 바탕으로 맞춤형 교육을 해요.'},
+  {t:'⚖️ 법률 전문가',b:'co',why:'인공지능이 대량의 법률 문서를 분석하면, 법률 전문가가 이를 바탕으로 효과적인 법률 상담을 해요.'},
+  {t:'🌾 농업 전문가',b:'co',why:'인공지능으로 기후 변화에 따른 농작물 생산량을 예측하고 병해충을 탐지해 농작물을 효율적으로 관리해요.'}
+],{done:'모두 맞혔어요! 인공지능은 어떤 일은 대신하고, 어떤 일은 사람과 함께 더 잘하게 도와줘요.'});
+['개인 정보를 함부로 입력하지 않아요','AI의 답이 사실인지 확인해요','AI가 만든 것은 AI가 만들었다고 밝혀요','내 생각을 더해서 사용해요','다른 사람을 속이거나 해치는 데 쓰지 않아요'].forEach(function(t){
+  var b=el('button',{class:'item'},t);b.addEventListener('click',function(){var n=$('#ethic-note');n.value=(n.value?n.value+'\n':'')+'· '+t;store.set('txt:ethic-note',n.value)});$('#ethics').appendChild(b)});
+
+/* ---------- M9 quiz ---------- */
+var Q=[
+ ['대상을 관찰하거나 측정하여 얻은 사실을 무엇이라고 할까요?',['데이터','프로그램','로봇'],0,'관찰·측정으로 얻은 사실이 데이터예요.'],
+ ['손 글씨로 쓴 편지는 어떤 형태의 데이터일까요?',['아날로그 데이터','디지털 데이터'],0,'연속적인 변화를 표현한 아날로그 데이터예요.'],
+ ['디지털 체중계로 잰 몸무게는 어떤 형태의 데이터일까요?',['아날로그 데이터','디지털 데이터'],1,'컴퓨터가 처리할 수 있는 디지털 기호 형식이에요.'],
+ ['국어사전 앱의 음성 인식은 어떤 유형의 데이터를 인식할까요?',['글자','이미지','소리'],2,'목소리, 즉 소리 데이터를 인식해요.'],
+ ['데이터에 이름(클래스)을 붙이는 작업을 무엇이라고 할까요?',['레이블링','업로드','코딩'],0,'각각의 데이터에 이름을 붙이는 작업이 레이블링이에요.'],
+ ['인공지능 모델을 만드는 순서로 알맞은 것은?',['모델 활용 → 데이터 수집','데이터 수집과 레이블링 → 모델 생성 및 평가 → 모델 활용','모델 평가 → 데이터 수집 → 모델 활용'],1,'데이터를 먼저 모으고 레이블을 붙인 뒤 학습시켜요.'],
+ ['인공지능의 성능을 높이려면 어떤 데이터가 좋을까요?',['적은 양의 아무 데이터','많은 양의 정확한 데이터','레이블이 틀린 데이터'],1,'많고 정확한 데이터를 학습할수록 성능이 높아져요.'],
+ ['신호등 프로그램에서 노란불일 때 자동차는 어떻게 할까요?',['1만큼 움직여요','0만큼 움직여요(멈춰요)','화면 끝으로 순간 이동해요'],1,'노랑일 때는 멈추는 것이 더 안전해요.'],
+ ['인공지능과 협업하는 직업에 해당하는 것은?',['데이터 입력자','농업 전문가','고객 문의 자동 응답'],1,'농업 전문가는 인공지능의 예측과 탐지를 활용해 함께 일해요.'],
+ ['생성형 인공지능이 할 수 있는 일이 아닌 것은?',['긴 글 요약하기','그림 만들기','내 숙제를 확인 없이 그대로 맡겨도 언제나 정답'],2,'생성형 AI도 틀릴 수 있어요. 결과가 맞는지 꼭 확인해요.']
+];
+var qa={};
+function drawQuiz(){
+  var box=$('#quiz');box.innerHTML='';qa={};$('#qscore').hidden=true;
+  Q.forEach(function(q,qi){
+    var d=el('div',{class:'qq'},'<h4>'+(qi+1)+'. '+q[0]+'</h4><div class="opts"></div><p class="feedback small"></p>');
+    var o=$('.opts',d);q[1].forEach(function(op,oi){var b=el('button',null,op);b.addEventListener('click',function(){
+      if(qi in qa)return;qa[qi]=oi===q[2];
+      b.classList.add(oi===q[2]?'right':'wrong');$$('button',o)[q[2]].classList.add('right');
+      var f=$('.feedback',d);f.className='feedback small '+(qa[qi]?'ok':'no');f.textContent=(qa[qi]?'정답! ':'아쉬워요. ')+q[3];
+      if(Object.keys(qa).length===Q.length){var s=0;for(var k in qa)if(qa[k])s++;var sc=$('#qscore');sc.hidden=false;sc.textContent=Q.length+'문제 중 '+s+'문제 정답! '+(s>=8?'데이터 박사 인정!':s>=5?'잘했어요! 틀린 문제를 다시 살펴봐요.':'미션을 다시 둘러보고 한 번 더 도전해요.')}
+    });o.appendChild(b)});
+    box.appendChild(d);
+  });
+}
+$('#qreset').addEventListener('click',drawQuiz);drawQuiz();
+
+/* ---------- certificates ---------- */
+var CERT={1:{ms:['m1','m2','m3','m4'],title:'1차시 미션 확인증',sub:'데이터와 친해지기'},2:{ms:['m5','m6','m7','m8','m9'],title:'2차시 미션 확인증',sub:'AI 만들고 생각하기'}};
+var dlP=null;
+function getDl(){if(!dlP){try{dlP=(window.claude&&window.claude.use)?window.claude.use('downloads').catch(function(){return null}):Promise.resolve(null)}catch(e){dlP=Promise.resolve(null)}}return dlP}
+getDl();
+function fallbackSave(c,blob,fname,fb){
+  var url=URL.createObjectURL(blob);
+  try{var a=document.createElement('a');a.href=url;a.download=fname;document.body.appendChild(a);a.click();a.remove()}catch(e){}
+  var box=$('.cfall',c);box.hidden=false;var img=$('img',box);img.src=$('canvas',c).toDataURL('image/png');img.alt=fname;
+  fb.className='feedback small cfb ok';fb.textContent='내려받기 폴더를 확인해 보세요. 파일이 없으면 아래 확인증 그림을 길게 누르거나 마우스 오른쪽 버튼으로 눌러 「이미지를 다른 이름으로 저장」을 고르세요.';
+}
+$$('.cert').forEach(function(c){
+  var L=c.dataset.lesson,cf=CERT[L];
+  c.innerHTML='<h3>'+cf.title+' 받기</h3><p class="small">'+cf.ms.map(function(id){return id.slice(1)}).join(', ')+'번 미션에서 <b>미션 완료 도장</b>을 모두 찍으면 확인증을 내려받을 수 있어요.</p><div class="todo"></div>'+
+  '<div class="body" style="display:grid;gap:12px"><label class="small" for="cert-name-'+L+'">내 이름 (예: 6학년 2반 김하늘)</label><input type="text" id="cert-name-'+L+'" maxlength="24" placeholder="학년, 반, 이름을 적어요"><canvas width="1200" height="850" aria-label="'+cf.title+' 미리 보기"></canvas><div class="row"><button class="btn sun dlbtn">확인증 내려받기 (그림 파일)</button><span class="feedback small cfb"></span></div><div class="cfall" hidden style="display:grid;gap:6px;justify-items:center"><span class="small muted">↓ 이 그림을 저장하세요</span><img style="width:100%;max-width:600px;border-radius:12px;border:3px solid var(--leaf)"></div></div>';
+  var inp=$('input',c);inp.value=store.get('cert-name','');
+  inp.addEventListener('input',function(){store.set('cert-name',inp.value);$$('.cert input').forEach(function(o){if(o!==inp)o.value=inp.value});refreshCert()});
+  $('.dlbtn',c).addEventListener('click',function(){
+    var fb=$('.cfb',c);
+    if(!inp.value.trim()){fb.className='feedback small cfb no';fb.textContent='먼저 이름을 적어 주세요.';inp.focus();return}
+    var fname=L+'차시_미션확인증_'+inp.value.trim().replace(/[^0-9A-Za-z가-힣ㄱ-ㅎㅏ-ㅣ_-]+/g,'_')+'.png';
+    fb.className='feedback small cfb';fb.textContent='확인증을 만드는 중…';
+    $('canvas',c).toBlob(function(blob){
+      getDl().then(function(dl){
+        if(!dl){fallbackSave(c,blob,fname,fb);return}
+        dl.save({filename:fname,data:blob}).then(function(){fb.className='feedback small cfb ok';fb.textContent='확인증을 저장했어요! 내려받기 폴더를 확인하세요.'})
+        .catch(function(e){var code=e&&e.code;
+          if(code==='declined'){fb.className='feedback small cfb no';fb.textContent='저장을 취소했어요. 다시 누르면 저장할 수 있어요.'}
+          else if(code==='rate_limited'){fb.className='feedback small cfb no';fb.textContent='저장 창이 이미 열려 있어요. 창을 확인하거나 잠시 뒤에 다시 눌러 주세요.'}
+          else fallbackSave(c,blob,fname,fb)});
+      });
+    },'image/png');
+  });
+});
+function rr(x,a,b,w,h,r){x.beginPath();x.moveTo(a+r,b);x.arcTo(a+w,b,a+w,b+h,r);x.arcTo(a+w,b+h,a,b+h,r);x.arcTo(a,b+h,a,b,r);x.arcTo(a,b,a+w,b,r);x.closePath()}
+function drawCert(cv,L,name){
+  var cf=CERT[L],x=cv.getContext('2d'),W=1200,H=850,D='"Jua","Apple SD Gothic Neo","Malgun Gothic",sans-serif',B='"Gowun Dodum","Apple SD Gothic Neo","Malgun Gothic",sans-serif';
+  x.fillStyle='#FFFFFF';x.fillRect(0,0,W,H);
+  x.fillStyle='#DCEEFD';rr(x,24,24,W-48,H-48,36);x.fill();
+  x.fillStyle='#FFFFFF';rr(x,48,48,W-96,H-96,28);x.fill();
+  x.setLineDash([14,10]);x.strokeStyle='#FFC22E';x.lineWidth=5;rr(x,64,64,W-128,H-128,22);x.stroke();x.setLineDash([]);
+  // robot
+  x.save();x.translate(1010,170);x.fillStyle='#1F7FD6';rr(x,-60,-45,120,95,30);x.fill();x.fillStyle='#fff';x.beginPath();x.arc(-24,0,15,0,7);x.arc(24,0,15,0,7);x.fill();
+  x.fillStyle='#1D2A39';x.beginPath();x.arc(-24,0,7,0,7);x.fill();x.beginPath();x.arc(24,0,7,0,7);x.fill();x.fillStyle='#1F7FD6';x.fillRect(-5,-75,10,30);x.fillStyle='#FFC22E';x.beginPath();x.arc(0,-78,12,0,7);x.fill();
+  x.strokeStyle='#fff';x.lineWidth=6;x.lineCap='round';x.beginPath();x.arc(0,22,14,.2,Math.PI-.2);x.stroke();x.restore();
+  x.textAlign='center';x.fillStyle='#1F7FD6';x.font='28px '+D;x.fillText('6. 인공지능과 로봇의 만남 · 01 데이터와 인공지능',W/2-60,140);
+  x.fillStyle='#1D2A39';x.font='84px '+D;x.fillText(cf.title,W/2-60,240);
+  x.fillStyle='#56687B';x.font='30px '+B;x.fillText(cf.sub,W/2-60,290);
+  x.fillStyle='#1D2A39';x.font='52px '+D;var nm=name||'(이름을 적어요)';x.fillText(nm,W/2,385);
+  var tw=x.measureText(nm).width;x.strokeStyle='#FFC22E';x.lineWidth=6;x.beginPath();x.moveTo(W/2-tw/2-20,405);x.lineTo(W/2+tw/2+20,405);x.stroke();
+  var ms=cf.ms,n=ms.length,cw=180,gap=20,tot=n*cw+(n-1)*gap,sx=(W-tot)/2;
+  ms.forEach(function(id,i){var ok=!!done[id],bx=sx+i*(cw+gap);x.fillStyle=ok?'#DDF5E9':'#F2F5F8';rr(x,bx,450,cw,120,18);x.fill();
+    x.strokeStyle=ok?'#1E9E66':'#C9D3DD';x.lineWidth=3;rr(x,bx,450,cw,120,18);x.stroke();
+    x.fillStyle=ok?'#1E9E66':'#9AA7B4';x.font='40px '+D;x.fillText(ok?'★':'☆',bx+cw/2,500);
+    x.font='24px '+D;x.fillStyle='#1D2A39';x.fillText('미션 '+id.slice(1),bx+cw/2,532);x.font='19px '+B;x.fillStyle='#56687B';x.fillText($('#'+id).dataset.title,bx+cw/2,558)});
+  x.fillStyle='#1D2A39';x.font='32px '+B;
+  x.fillText('위 학생은 실과 「데이터와 인공지능」 '+L+'차시의',W/2,640);x.fillText('모든 미션을 끝까지 해결하였기에 이 확인증을 드립니다.',W/2,685);
+  var d=new Date();x.font='26px '+B;x.fillStyle='#56687B';x.fillText(d.getFullYear()+'년 '+(d.getMonth()+1)+'월 '+d.getDate()+'일',W/2,750);
+  x.save();x.translate(1050,730);x.rotate(-.18);x.strokeStyle='#F0584A';x.lineWidth=6;x.beginPath();x.arc(0,0,62,0,7);x.stroke();x.lineWidth=2;x.beginPath();x.arc(0,0,52,0,7);x.stroke();
+  x.fillStyle='#F0584A';x.font='30px '+D;x.fillText('미션',0,-6);x.fillText('완료',0,28);x.restore();
+}
+function refreshCert(){
+  $$('.cert').forEach(function(c){var L=c.dataset.lesson,cf=CERT[L];var all=cf.ms.every(function(id){return done[id]});
+    $('.todo',c).innerHTML=cf.ms.map(function(id){return '<span class="'+(done[id]?'ok':'')+'">'+(done[id]?'★ ':'☆ ')+'미션 '+id.slice(1)+'</span>'}).join('');
+    $('.body',c).hidden=!all;if(all)drawCert($('canvas',c),L,$('input',c).value.trim())});
+}
+var _rd=refreshDone;refreshDone=function(){_rd();refreshCert()};
+refreshCert();
+if(document.fonts&&document.fonts.load){Promise.all([document.fonts.load('40px "Jua"'),document.fonts.load('30px "Gowun Dodum"')]).then(refreshCert,function(){})}
+})();
+</script>
+
+</body>
+</html>
