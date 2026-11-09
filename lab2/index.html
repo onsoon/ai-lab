@@ -346,6 +346,10 @@ input[type=range]{width:min(260px,100%);accent-color:var(--sky)}
 .camview .lbl{position:absolute;top:6px;left:8px;font-size:13px;color:#fff;background:#F0584A;border-radius:6px;padding:0 6px}
 .camview .card{width:90px;height:90px;border-radius:14px;background:#fff;display:grid;place-items:center;box-shadow:0 2px 6px rgba(0,0,0,.2)}
 .camview .card i{width:64px;height:64px;border-radius:50%;display:block}
+.photo-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:700px){.photo-row{grid-template-columns:1fr}}
+.photo{width:100%;border-radius:14px;border:2px solid var(--line);display:block}
+.bsteps li img{display:block;width:100%;max-width:420px;border-radius:12px;border:2px solid var(--line);margin-top:8px}
 </style>
 </head>
 <body>
@@ -562,23 +566,29 @@ input[type=range]{width:min(260px,100%);accent-color:var(--sky)}
 
 <!-- M6 -->
 <section class="m" id="m6" data-title="네오봇 조립" hidden>
-  <div class="m-head"><span class="eyebrow">미션 6 · 자율주행 로봇 만들기 ① 로봇 본체 조립하기</span><h2>네오봇으로 자율주행 로봇 조립하기</h2>
-    <p class="lead">로봇에 이미지 인식 인공지능 기술을 융합하면 자율주행 로봇을 만들 수 있어요. 이번 로봇은 따로 센서를 달지 않고, <b>카메라</b>와 지난 시간에 학습시킨 <b>신호등 색 분류 모델</b>을 로봇의 눈으로 써요.</p></div>
-  <div class="key"><b>우리 로봇의 감지 → 제어 → 구동</b><br>📷 <b>카메라</b>(감지 장치)가 신호등을 보면 → 🧠 <b>신호등 색 분류 모델과 엔트리 프로그램</b>(제어)이 초록·노랑·빨강을 판단하고 → ⚙️ <b>전동기와 바퀴</b>(구동 장치)가 달리거나, 돌거나, 멈춰요.</div>
+  <div class="m-head"><span class="eyebrow">미션 6 · 자율주행 로봇 만들기 ① 로봇 본체 조립하기</span><h2>네오봇 자동차 조립하기</h2>
+    <p class="lead">제어 장치, 전동기 2개, 바퀴만으로 간단한 네오봇 자동차를 만들어요. 센서는 달지 않아요. 로봇의 눈은 컴퓨터에 연결된 <b>카메라(웹캠)</b>와 지난 시간에 학습시킨 <b>신호등 색 분류 모델</b>이에요. 사진을 보면서 차례대로 조립하세요.</p></div>
+  <div class="key"><b>우리 로봇의 감지 → 제어 → 구동</b><br>📷 <b>카메라</b>(감지 장치)가 신호등 카드를 보면 → 🧠 <b>신호등 색 분류 모델과 엔트리 프로그램</b>(제어)이 초록·노랑·빨강을 판단해서 동글로 명령을 보내고 → ⚙️ <b>전동기와 바퀴</b>(구동 장치)가 달리거나, 돌거나, 멈춰요.</div>
   <div class="panel">
-    <h3>준비물 확인하기 <span class="chip" id="parts-c">0 / 13</span></h3>
-    <p class="small">모둠 상자에서 찾은 부품을 눌러 체크하세요.</p>
-    <div class="parts" id="parts"></div>
+    <h3>준비물 확인하기 <span class="chip" id="parts-c">0 / 7</span></h3>
+    <div class="photo-row">
+      <img class="photo" src="img/parts.jpg" alt="네오봇 조립 준비물: 제어 장치, 전동기 2개, 큰 바퀴 2개, 바퀴 축 2개, 빨간색 긴 블록 2개, 파란색 핀 4개, 작은 바퀴 2개" loading="lazy">
+      <div style="display:grid;gap:8px;align-content:start"><p class="small">모둠 상자에서 찾은 부품을 눌러 체크하세요.</p><div class="parts" id="parts"></div></div>
+    </div>
   </div>
   <div class="panel">
     <h3>조립하기</h3>
-    <ol class="steps chk-list" data-key="build2">
-      <li class="chk"><span><b>아래 작은 바퀴</b>: 10칸 블록 2개 사이에 막힘 축과 작은 바퀴를 끼워 바퀴 받침을 만들어요.</span></li>
-      <li class="chk"><span><b>전동기와 큰 바퀴</b>: 전동기 2개를 제어 장치 아래 양쪽에 붙이고 큰 바퀴를 전동기 축에 끼워요.</span></li>
-      <li class="chk"><span><b>카메라</b>: 블록 안쪽 공간에 카메라를 끼워 넣어요. 렌즈가 <b>로봇 앞쪽</b>을 보도록 해야 신호등 카드를 볼 수 있어요.</span></li>
-      <li class="chk"><span><b>덮개</b>: 굽은 블록, 2×8·2×6 블록과 6×10 블록으로 위를 덮어 카메라를 단단히 고정해요.</span></li>
-      <li class="chk"><span><b>케이블 연결</b>: 아래 연결 연습에서 확인한 곳에 케이블을 꽂아요. 카메라 선이 바퀴에 걸리지 않게 정리해요.</span></li>
+    <p class="small">한 단계를 끝낼 때마다 눌러서 체크하세요.</p>
+    <ol class="steps chk-list bsteps" data-key="build3">
+      <li class="chk"><span><b>빨간색 긴 블록에 핀 꽂기</b><br>빨간색 긴 블록 2개의 한쪽 끝 부분에 파란색 핀을 2개씩 꽂아요. 핀을 꽂는 위치를 두 블록이 똑같게 맞춰요.<img src="img/s1.jpg" alt="빨간색 긴 블록 2개에 파란색 핀을 2개씩 꽂은 모습" loading="lazy"></span></li>
+      <li class="chk"><span><b>작은 바퀴 끼우기</b><br>두 빨간색 블록 사이에 작은 바퀴 2개를 나란히 끼워 <b>보조 바퀴</b>를 만들어요. 작은 바퀴가 잘 굴러가는지 손으로 돌려 봐요.<img src="img/s2.jpg" alt="빨간색 블록 두 개 사이에 작은 바퀴 2개를 끼운 모습" loading="lazy"></span></li>
+      <li class="chk"><span><b>제어 장치와 전동기 준비하기</b><br>제어 장치와 전동기 2개를 준비해요. 제어 장치에는 <span class="menu">MOTOR Left</span>, <span class="menu">MOTOR Right</span> 단자가 있어요.<img src="img/s3.jpg" alt="제어 장치와 전동기 2개" loading="lazy"></span></li>
+      <li class="chk"><span><b>전동기 붙이기</b><br>제어 장치를 뒤집어 바닥 양쪽 끝에 전동기를 하나씩 붙여요. 전동기의 노란색 축 구멍이 <b>바깥쪽</b>을 보도록 해요.<img src="img/s4.jpg" alt="제어 장치 옆에 전동기를 붙이는 모습" loading="lazy"></span></li>
+      <li class="chk"><span><b>보조 바퀴 붙이기</b><br>2번에서 만든 보조 바퀴를 제어 장치 바닥 가운데, 두 전동기 사이에 파란색 핀으로 끼워 고정해요.<img src="img/s5a.jpg" alt="보조 바퀴를 제어 장치 바닥에 끼우는 모습" loading="lazy"><img src="img/s5b.jpg" alt="두 전동기 사이에 보조 바퀴를 붙인 바닥 모습" loading="lazy"></span></li>
+      <li class="chk"><span><b>큰 바퀴 달기</b><br>바퀴 축을 전동기의 노란색 구멍에 끝까지 꽂고, 그 위에 큰 바퀴를 끼워요. 양쪽 모두 똑같이 해요.<img src="img/s6.jpg" alt="양쪽 전동기에 바퀴 축과 큰 바퀴를 끼운 바닥 모습" loading="lazy"></span></li>
+      <li class="chk"><span><b>케이블 연결하고 완성!</b><br>로봇을 바로 세우고, 왼쪽 전동기 선은 <span class="menu">MOTOR Left</span>, 오른쪽 전동기 선은 <span class="menu">MOTOR Right</span> 단자에 꽂아요. 선이 바퀴에 걸리지 않게 정리하고 전원을 켜요.<img src="img/s7a.jpg" alt="완성된 네오봇 자동차 앞모습" loading="lazy"><img src="img/s7b.jpg" alt="완성된 네오봇 자동차" loading="lazy"></span></li>
     </ol>
+    <p class="small muted">로봇을 앞에서 봤을 때 기준으로 왼쪽·오른쪽을 정해요. 반대로 꽂으면 노랑 카드에서 반대쪽으로 돌 수 있어요.</p>
   </div>
   <div class="panel">
     <h3>연결 연습 · 어디에 꽂을까?</h3>
@@ -586,14 +596,14 @@ input[type=range]{width:min(260px,100%);accent-color:var(--sky)}
     <div class="portgame">
       <div class="dev" id="devs"></div>
       <svg class="board2" id="board2" viewBox="0 0 460 330" aria-label="네오봇 제어 장치 단자 그림">
-        <rect x="140" y="60" width="180" height="210" rx="14" fill="#BFEAD9" stroke="#56687B" stroke-width="3"/>
-        <rect x="165" y="95" width="130" height="80" rx="8" fill="#E8F7F1"/>
-        <text x="230" y="140" text-anchor="middle" font-family="Jua,sans-serif" font-size="20" fill="#1E9E66">제어 장치</text>
+        <rect x="140" y="60" width="180" height="210" rx="14" fill="#B79BEF" stroke="#56687B" stroke-width="3"/>
+        <rect x="165" y="95" width="130" height="80" rx="8" fill="#ECE6FC"/>
+        <text x="230" y="140" text-anchor="middle" font-family="Jua,sans-serif" font-size="20" fill="#7A5AD8">제어 장치</text>
         <circle cx="200" cy="215" r="14" fill="#fff" stroke="#56687B" stroke-width="2"/><circle cx="260" cy="215" r="8" fill="#F0584A"/>
       </svg>
     </div>
     <p class="feedback" id="port-fb" aria-live="polite"></p>
-    <p class="small muted">카메라는 로봇의 제어 장치가 아니라 <b>컴퓨터</b>에 연결해요. 엔트리가 컴퓨터에서 카메라 영상을 분류한 뒤, 동글을 통해 로봇에게 명령을 보내요. 그래서 카메라 선이 닿는 범위 안에서 로봇을 움직여요.</p>
+    <p class="small muted">카메라(웹캠)는 로봇이 아니라 <b>컴퓨터</b>에 연결해요. 엔트리가 컴퓨터에서 카메라 영상을 분류한 뒤, 동글을 통해 로봇에게 명령을 보내요.</p>
   </div>
   <div class="finish" data-m="m6"></div>
 </section>
@@ -651,7 +661,7 @@ input[type=range]{width:min(260px,100%);accent-color:var(--sky)}
     <h3>4. 자동차 오브젝트 프로그램 (로봇 구동)</h3>
     <div class="code"><div class="blocks">
       <div class="blk ev">▶ 시작하기 버튼을 클릭했을 때</div>
-      <div class="blk vi"><span class="slot">웹캠 ▾</span> 카메라로 바꾸기<span class="cmt" style="color:#fff;opacity:.9">로봇에 단 카메라를 골라요</span></div>
+      <div class="blk vi"><span class="slot">웹캠 ▾</span> 카메라로 바꾸기<span class="cmt" style="color:#fff;opacity:.9">컴퓨터에 연결한 웹캠을 골라요</span></div>
       <div class="blk vi">비디오 화면 <span class="slot">보이기 ▾</span></div>
       <div class="blk fl">계속 반복하기</div>
       <div class="nest">
@@ -712,8 +722,8 @@ input[type=range]{width:min(260px,100%);accent-color:var(--sky)}
   <div class="panel">
     <h3>5. 실행하기</h3>
     <ol class="steps chk-list" data-key="run2">
-      <li class="chk"><span>로봇을 넓고 평평한 바닥에 두고 ▶ 시작하기를 눌러요.</span></li>
-      <li class="chk"><span>로봇 카메라 앞에 <b>초록</b> 카드를 보여 주고 로봇이 앞으로 가는지 확인해요.</span></li>
+      <li class="chk"><span>로봇을 넓고 평평한 바닥에 두고 ▶ 시작하기를 눌러요. 웹캠은 카드를 보여 주기 쉬운 곳을 향하게 둬요.</span></li>
+      <li class="chk"><span>웹캠 앞에 <b>초록</b> 카드를 보여 주고 로봇이 앞으로 가는지 확인해요.</span></li>
       <li class="chk"><span><b>노랑</b> 카드로 오른쪽으로 도는지, <b>빨강</b> 카드로 멈추는지 확인해요.</span></li>
       <li class="chk"><span>카드를 치웠을 때(배경) 로봇이 멈춰 있는지 확인해요.</span></li>
     </ol>
@@ -787,7 +797,7 @@ input[type=range]{width:min(260px,100%);accent-color:var(--sky)}
 <!-- M9 -->
 <section class="m" id="m9" data-title="신호등 자율주행" hidden>
   <div class="m-head"><span class="eyebrow">미션 9 · 자율주행 로봇 만들기 ④ 신호등 카드로 목적지까지</span><h2>신호등 카드로 로봇을 학교까지 보내요</h2>
-    <p class="lead">미션 7에서 만든 프로그램 그대로, 카메라에 보여 주는 신호등 카드만으로 로봇을 목적지까지 보내는 도전이에요. 먼저 화면에서 카드 순서를 계획하고, 그 순서대로 실제 로봇에게 카드를 보여 주세요.</p></div>
+    <p class="lead">미션 7에서 만든 프로그램 그대로, 웹캠에 보여 주는 신호등 카드만으로 로봇을 목적지까지 보내는 도전이에요. 먼저 화면에서 카드 순서를 계획하고, 그 순서대로 실제 로봇에게 카드를 보여 주세요.</p></div>
   <div class="grid3">
     <div class="panel" style="border-color:var(--leaf)"><h3>🟢 초록 카드</h3><p class="small">양쪽 모터 1초 → <b>한 칸 앞으로</b></p></div>
     <div class="panel" style="border-color:var(--sun)"><h3>🟡 노랑 카드</h3><p class="small">한쪽 모터 1초 → <b>오른쪽으로 돌기</b></p></div>
@@ -811,7 +821,7 @@ input[type=range]{width:min(260px,100%);accent-color:var(--sky)}
     <ol class="steps chk-list" data-key="course">
       <li class="chk"><span>모둠 책상이나 바닥에 출발점과 도착점(학교)을 표시하고, 장애물(필통, 지우개 등)을 놓아 코스를 만들어요.</span></li>
       <li class="chk"><span>화면에서 연습한 것처럼 카드 순서를 계획하고 활동지에 적어요.</span></li>
-      <li class="chk"><span>미션 7 프로그램을 실행하고, 한 명이 계획한 순서대로 로봇 카메라 앞에 카드를 하나씩 보여 줘요.</span></li>
+      <li class="chk"><span>미션 7 프로그램을 실행하고, 한 명이 계획한 순서대로 웹캠 앞에 카드를 하나씩 보여 줘요.</span></li>
       <li class="chk"><span>로봇이 1초 동안 움직이면 카드를 치우고(배경), 다음 카드를 보여 줘요.</span></li>
       <li class="chk"><span>실제로 한 칸이 얼마나 되는지, 노랑 카드로 몇 도쯤 도는지 확인하고 계획을 고쳐 다시 도전해요.</span></li>
     </ol>
@@ -1051,25 +1061,25 @@ optRows($('#serve'),[
 ],['상황 인식','위치 인식','동작 제어','자율 이동']);
 
 /* ---------- M6 parts & ports ---------- */
-var PL=['10칸 블록 2개','6×10 블록 1개','굽은 블록 2개','2×8 블록 2개','2×6 블록 2개','회전 핀 4개','고정 핀 12개','막힘 축 2개','작은 바퀴 2개','큰 바퀴 2개','카메라','제어 장치','전동기 2개'];
-var pst=store.get('parts2',[]);
-function drawParts(){var box=$('#parts');box.innerHTML='';var n=0;PL.forEach(function(p,i){if(pst[i])n++;var b=el('button',{class:pst[i]?'on':''},p);b.addEventListener('click',function(){pst[i]=!pst[i];store.set('parts2',pst);drawParts()});box.appendChild(b)});
+var PL=['제어 장치 1개','전동기 2개','큰 바퀴 2개','바퀴 축 2개','빨간색 긴 블록 2개','파란색 핀 4개','작은 바퀴 2개'];
+var pst=store.get('parts3',[]);
+function drawParts(){var box=$('#parts');box.innerHTML='';var n=0;PL.forEach(function(p,i){if(pst[i])n++;var b=el('button',{class:pst[i]?'on':''},p);b.addEventListener('click',function(){pst[i]=!pst[i];store.set('parts3',pst);drawParts()});box.appendChild(b)});
   $('#parts-c').textContent=n+' / '+PL.length+(n===PL.length?' 모두 준비!':'')}
 drawParts();
-var PORTS=[['IN1',40,14],['IN2',140,14],['OUT1',240,14],['OUT2',340,14],['L-Motor',40,282],['IN3',140,282],['OUT3',240,282],['R-Motor',340,282],['컴퓨터 USB',4,148,1]];
-var DEV=[['⚙️ 왼쪽 전동기','L-Motor'],['⚙️ 오른쪽 전동기','R-Motor'],['📷 카메라','컴퓨터 USB'],['📡 동글','컴퓨터 USB']];
+var PORTS=[['IN1',40,14],['IN2',140,14],['OUT1',240,14],['OUT2',340,14],['MOTOR Left',40,282],['IN3',140,282],['OUT3',240,282],['MOTOR Right',340,282],['컴퓨터 USB',4,148,1]];
+var DEV=[['⚙️ 왼쪽 전동기','MOTOR Left'],['⚙️ 오른쪽 전동기','MOTOR Right'],['📷 카메라(웹캠)','컴퓨터 USB'],['📡 동글','컴퓨터 USB']];
 var NS='http://www.w3.org/2000/svg',bd=$('#board2'),psel=null,pdone={};
 PORTS.forEach(function(p){
   var g=document.createElementNS(NS,'g');g.setAttribute('class','port');g.setAttribute('data-port',p[0]);g.setAttribute('tabindex','0');g.setAttribute('role','button');g.setAttribute('aria-label',p[0]);
   var cx=p[1]+40,top=p[2]<100,w=80;
   if(p[3]){w=112;cx=p[1]+56;g.innerHTML='<line x1="'+(p[1]+w)+'" y1="'+(p[2]+17)+'" x2="140" y2="'+(p[2]+17)+'" stroke="#7A8B9C" stroke-width="3" stroke-dasharray="5 4"/><rect x="'+p[1]+'" y="'+p[2]+'" width="'+w+'" height="34" rx="10"/><text x="'+cx+'" y="'+(p[2]+23)+'" text-anchor="middle">'+p[0]+'</text>'}
-  else g.innerHTML='<line x1="'+cx+'" y1="'+(top?p[2]+34:p[2])+'" x2="'+Math.min(Math.max(cx,160),300)+'" y2="'+(top?60:270)+'" stroke="#7A8B9C" stroke-width="3"/><rect x="'+p[1]+'" y="'+p[2]+'" width="80" height="34" rx="10"/><text x="'+cx+'" y="'+(p[2]+23)+'" text-anchor="middle">'+p[0]+'</text>';
+  else g.innerHTML='<line x1="'+cx+'" y1="'+(top?p[2]+34:p[2])+'" x2="'+Math.min(Math.max(cx,160),300)+'" y2="'+(top?60:270)+'" stroke="#7A8B9C" stroke-width="3"/><rect x="'+p[1]+'" y="'+p[2]+'" width="80" height="34" rx="10"/><text x="'+cx+'" y="'+(p[2]+23)+'" text-anchor="middle"'+(p[0].length>5?' style="font-size:12px"':'')+'>'+p[0]+'</text>';
   function pick(){var fb=$('#port-fb');if(!psel){fb.className='feedback';fb.textContent='먼저 왼쪽에서 부품을 골라 주세요.';return}
     $$('.port',bd).forEach(function(x){x.classList.remove('ready')});
     var d=psel._d;
     if(d[1]===p[0]){pdone[d[0]]=1;g.classList.add('ok');psel.classList.remove('sel');psel.classList.add('ok');$('.to',psel).textContent='→ '+p[0];
       var left=DEV.filter(function(x){return !pdone[x[0]]}).length;fb.className='feedback ok';fb.textContent=left?'딩동댕! '+d[0].slice(3)+'는 '+p[0]+'에 꽂아요.':'모두 연결했어요! 이제 실제 로봇에도 똑같이 꽂아요.'}
-    else{fb.className='feedback no';fb.textContent='거기가 아니에요. '+(d[1]==='컴퓨터 USB'?d[0].slice(3)+'는 로봇이 아니라 컴퓨터에 꽂아요.':'전동기는 L-Motor(왼쪽), R-Motor(오른쪽) 단자에 꽂아요. 이번 로봇은 센서 단자(IN, OUT)를 쓰지 않아요.');psel.classList.remove('sel')}
+    else{fb.className='feedback no';fb.textContent='거기가 아니에요. '+(d[1]==='컴퓨터 USB'?d[0].slice(3)+'는 로봇이 아니라 컴퓨터에 꽂아요.':'전동기는 MOTOR Left(왼쪽), MOTOR Right(오른쪽) 단자에 꽂아요. 이번 로봇은 센서 단자(IN, OUT)를 쓰지 않아요.');psel.classList.remove('sel')}
     psel=null}
   g.addEventListener('click',pick);g.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();pick()}});
   bd.appendChild(g);
