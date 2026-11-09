@@ -268,7 +268,7 @@ input[type=color]{width:44px;height:34px;border:2px solid var(--line);border-rad
 /* grid game */
 .gg{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
 @media (max-width:760px){.gg{grid-template-columns:1fr}}
-.room{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;background:var(--line);padding:4px;border-radius:14px;max-width:380px;width:100%;justify-self:center;aspect-ratio:1}
+.room{display:grid;grid-template-columns:repeat(6,1fr);grid-template-rows:repeat(6,1fr);gap:4px;background:var(--line);padding:4px;border-radius:14px;max-width:380px;width:100%;justify-self:center;aspect-ratio:1}
 .room div{background:var(--surface);border-radius:8px;display:grid;place-items:center;font-size:clamp(18px,5vw,28px);position:relative}
 .room .ob{background:#C9A27A}
 .room .gl{background:var(--leaf-soft)}
@@ -797,19 +797,20 @@ input[type=range]{width:min(260px,100%);accent-color:var(--sky)}
 <!-- M9 -->
 <section class="m" id="m9" data-title="신호등 자율주행" hidden>
   <div class="m-head"><span class="eyebrow">미션 9 · 자율주행 로봇 만들기 ④ 신호등 카드로 목적지까지</span><h2>신호등 카드로 로봇을 학교까지 보내요</h2>
-    <p class="lead">미션 7에서 만든 프로그램 그대로, 웹캠에 보여 주는 신호등 카드만으로 로봇을 목적지까지 보내는 도전이에요. 먼저 화면에서 카드 순서를 계획하고, 그 순서대로 실제 로봇에게 카드를 보여 주세요.</p></div>
+    <p class="lead">미션 7처럼 웹캠에 보여 주는 카드만으로 로봇을 목적지까지 보내는 도전이에요. 이번에는 노랑 대신 <b>➡️ 오른쪽 화살표</b>와 <b>⬅️ 왼쪽 화살표</b> 카드로 방향을 바꿔요. 먼저 화면에서 카드 순서를 계획하고, 그 순서대로 실제 로봇에게 카드를 보여 주세요.</p></div>
   <div class="grid3">
     <div class="panel" style="border-color:var(--leaf)"><h3>🟢 초록 카드</h3><p class="small">양쪽 모터 1초 → <b>한 칸 앞으로</b></p></div>
-    <div class="panel" style="border-color:var(--sun)"><h3>🟡 노랑 카드</h3><p class="small">한쪽 모터 1초 → <b>오른쪽으로 돌기</b></p></div>
+    <div class="panel" style="border-color:var(--sky)"><h3>➡️ 오른쪽 화살표 카드</h3><p class="small">한쪽 모터 1초 → <b>오른쪽으로 돌기</b></p></div>
+    <div class="panel" style="border-color:var(--grape)"><h3>⬅️ 왼쪽 화살표 카드</h3><p class="small">한쪽 모터 1초 → <b>왼쪽으로 돌기</b></p></div>
     <div class="panel" style="border-color:var(--coral)"><h3>🔴 빨강 카드</h3><p class="small">양쪽 모터 멈추기 → <b>그 자리에 정지</b></p></div>
   </div>
   <div class="panel">
     <h3>도전 · 카드 순서 계획하기</h3>
-    <p class="small">🚗가 🌳에 부딪히지 않고 🏫까지 가도록 카드를 차례로 넣고 <b>실행</b>을 누르세요. 규칙: <b>🚸 횡단보도에 들어가기 바로 전에는 🔴 빨강 카드로 한 번 멈춰야 해요.</b> 노랑 카드는 오른쪽으로만 돌 수 있으니, 왼쪽으로 가려면 어떻게 해야 할지 생각해 보세요!</p>
+    <p class="small">🚗가 🌳에 부딪히지 않고 🏫까지 가도록 카드를 차례로 넣고 <b>실행</b>을 누르세요. 규칙: <b>🚸 횡단보도에 들어가기 바로 전에는 🔴 빨강 카드로 한 번 멈춰야 해요.</b> ➡️ ⬅️ 화살표 카드는 그 자리에서 방향만 바꾸고, 🟢 초록 카드를 보여 줘야 앞으로 가요.</p>
     <div class="gg">
       <div class="room" id="course" aria-label="자율주행 코스"></div>
       <div style="display:grid;gap:10px;align-content:start">
-        <div class="row"><button class="btn leaf" data-card2="G">🟢 초록</button><button class="btn sun" data-card2="Y">🟡 노랑</button><button class="btn coral" data-card2="R">🔴 빨강</button></div>
+        <div class="row"><button class="btn leaf" data-card2="G">🟢 초록</button><button class="btn coral" data-card2="R">🔴 빨강</button><button class="btn" data-card2="RT">➡️ 오른쪽</button><button class="btn" style="background:var(--grape)" data-card2="LT">⬅️ 왼쪽</button></div>
         <div class="prog" id="cprog" aria-live="polite"></div>
         <div class="row"><button class="btn" id="c-run">▶ 실행</button><button class="btn ghost" id="c-undo">한 장 빼기</button><button class="btn ghost" id="c-clear">처음부터</button><button class="btn ghost" id="c-new">다른 코스</button></div>
         <p class="feedback" id="c-fb" aria-live="polite"></p>
@@ -821,9 +822,10 @@ input[type=range]{width:min(260px,100%);accent-color:var(--sky)}
     <ol class="steps chk-list" data-key="course">
       <li class="chk"><span>모둠 책상이나 바닥에 출발점과 도착점(학교)을 표시하고, 장애물(필통, 지우개 등)을 놓아 코스를 만들어요.</span></li>
       <li class="chk"><span>화면에서 연습한 것처럼 카드 순서를 계획하고 활동지에 적어요.</span></li>
+      <li class="chk"><span>신호등 분류 모델에 <span class="menu">오른쪽</span> <span class="menu">왼쪽</span> 화살표 클래스를 추가해 학습하고, 미션 7 프로그램에 화살표용 만일 블록(오른쪽: 왼쪽 모터만 회전, 왼쪽: 오른쪽 모터만 회전)을 더해요.</span></li>
       <li class="chk"><span>미션 7 프로그램을 실행하고, 한 명이 계획한 순서대로 웹캠 앞에 카드를 하나씩 보여 줘요.</span></li>
       <li class="chk"><span>로봇이 1초 동안 움직이면 카드를 치우고(배경), 다음 카드를 보여 줘요.</span></li>
-      <li class="chk"><span>실제로 한 칸이 얼마나 되는지, 노랑 카드로 몇 도쯤 도는지 확인하고 계획을 고쳐 다시 도전해요.</span></li>
+      <li class="chk"><span>실제로 한 칸이 얼마나 되는지, 화살표 카드로 몇 도쯤 도는지 확인하고 계획을 고쳐 다시 도전해요.</span></li>
     </ol>
   </div>
   <div class="panel">
@@ -1161,7 +1163,7 @@ vReset();
 
 /* ---------- M9 card course ---------- */
 var C={n:6,ob:{},start:[5,0],goal:[0,5],cw:null,prog:[],running:false,bot:null};
-var CN={G:'🟢 초록',Y:'🟡 노랑',R:'🔴 빨강'};
+var CN={G:'🟢 초록',R:'🔴 빨강',RT:'➡️ 오른쪽',LT:'⬅️ 왼쪽'};
 function cPath(){var prev={},q=[C.start],k=function(p){return p[0]+','+p[1]};prev[k(C.start)]=null;
   while(q.length){var p=q.shift();if(p[0]===C.goal[0]&&p[1]===C.goal[1]){var path=[],cur=p;while(cur){path.unshift(cur);cur=prev[k(cur)]}return path}
     DIRS.forEach(function(d){var r=p[0]+d[0],c=p[1]+d[1],kk=r+','+c;if(r<0||c<0||r>=C.n||c>=C.n||C.ob[kk]||kk in prev)return;prev[kk]=p;q.push([r,c])})}return null}
@@ -1182,7 +1184,7 @@ function cDraw(hit){var box=$('#course');box.innerHTML='';
     if(C.bot&&r===C.bot.r&&c===C.bot.c){cell.innerHTML='<span class="bot">'+(hit?'💥':'🚗')+'</span><i style="position:absolute;right:3px;top:0;font-size:15px;font-style:normal;color:var(--sky);font-family:var(--f-display)">'+ARW[C.bot.d]+'</i>'}
     box.appendChild(cell)}}
 function cDrawProg(ri){var p=$('#cprog');p.innerHTML=C.prog.length?'':'<span style="background:none;color:var(--muted)">카드 버튼을 눌러 보여 줄 순서를 정해요</span>';
-  C.prog.forEach(function(c,i){p.appendChild(el('span',{class:i===ri?'run':'',style:i===ri?'':'background:'+(c==='G'?'var(--leaf)':c==='Y'?'#E0A800':'var(--coral)')},(i+1)+'. '+CN[c]))})}
+  C.prog.forEach(function(c,i){p.appendChild(el('span',{class:i===ri?'run':'',style:i===ri?'':'background:'+(c==='G'?'var(--leaf)':c==='RT'?'var(--sky)':c==='LT'?'var(--grape)':'var(--coral)')},(i+1)+'. '+CN[c]))})}
 function cSay(t,c){var f=$('#c-fb');f.textContent=t;f.className='feedback '+(c||'')}
 $$('[data-card2]').forEach(function(b){b.addEventListener('click',function(){if(C.running)return;if(C.prog.length>=30){cSay('카드는 30장까지 넣을 수 있어요.');return}C.prog.push(b.dataset.card2);cDrawProg()})});
 $('#c-undo').addEventListener('click',function(){if(C.running)return;C.prog.pop();cDrawProg()});
@@ -1196,7 +1198,8 @@ $('#c-run').addEventListener('click',function(){
       if(C.bot.r===C.goal[0]&&C.bot.c===C.goal[1])cSay('도착! 신호등 카드만으로 로봇을 학교까지 보냈어요. 🎉 이 순서를 활동지에 적고 실제 로봇으로 도전해요.','ok');
       else cSay('아직 학교에 못 갔어요. 카드를 더 넣거나 순서를 고쳐 보세요.','no');return}
     var c=C.prog[i];cDrawProg(i);
-    if(c==='Y')C.bot.d=(C.bot.d+1)%4;
+    if(c==='RT')C.bot.d=(C.bot.d+1)%4;
+    else if(c==='LT')C.bot.d=(C.bot.d+3)%4;
     else if(c==='G'){var nr=C.bot.r+DIRS[C.bot.d][0],nc=C.bot.c+DIRS[C.bot.d][1],kk=nr+','+nc;
       if(nr<0||nc<0||nr>=C.n||nc>=C.n||C.ob[kk]){cDraw(true);C.running=false;cSay('쿵! '+(i+1)+'번째 카드에서 '+(C.ob[kk]?'나무':'코스 밖')+'에 부딪혔어요.','no');return}
       if(kk===C.cw&&C.prog[i-1]!=='R'){C.running=false;cSay('삐익! '+(i+1)+'번째 카드에서 횡단보도에 그냥 들어갔어요. 바로 앞에 🔴 빨강 카드를 넣어 한 번 멈춰요.','no');return}
