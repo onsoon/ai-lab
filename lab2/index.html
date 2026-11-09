@@ -1,0 +1,1281 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>로봇과 인공지능 실습실</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap">
+<style>
+/* Layout: 하늘색 교실 바탕 위에 미션 탭(상단 고정) + 한 번에 미션 하나씩 보이는 활동판 */
+:root{
+  --bg:#EEF6FC; --surface:#FFFFFF; --surface2:#F6FAFE; --ink:#1D2A39; --muted:#56687B; --line:#D3E2EF;
+  --sky:#1F7FD6; --sky-soft:#DCEEFD; --sun:#FFC22E; --sun-soft:#FFF3CF; --coral:#F0584A; --coral-soft:#FFE4E0;
+  --leaf:#1E9E66; --leaf-soft:#DDF5E9; --grape:#7A5AD8; --grape-soft:#ECE6FC;
+  --on-accent:#FFFFFF;
+  --f-display:"Jua","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --f-body:"Gowun Dodum","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --r:18px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E1824; --surface:#16273A; --surface2:#1B2F45; --ink:#EAF2FA; --muted:#A3B6C9; --line:#2B415A;
+  --sky:#5AAEF5; --sky-soft:#173A5C; --sun:#FFD25A; --sun-soft:#3D3416; --coral:#FF8A7D; --coral-soft:#47231F;
+  --leaf:#4DCB92; --leaf-soft:#173D2D; --grape:#A68CF5; --grape-soft:#2D2550; --on-accent:#0E1824; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E1824; --surface:#16273A; --surface2:#1B2F45; --ink:#EAF2FA; --muted:#A3B6C9; --line:#2B415A;
+  --sky:#5AAEF5; --sky-soft:#173A5C; --sun:#FFD25A; --sun-soft:#3D3416; --coral:#FF8A7D; --coral-soft:#47231F;
+  --leaf:#4DCB92; --leaf-soft:#173D2D; --grape:#A68CF5; --grape-soft:#2D2550; --on-accent:#0E1824; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.7;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 48px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+h1,h2,h3,h4{font-family:var(--f-display);font-weight:400;line-height:1.3;text-wrap:balance;margin:0}
+p{margin:0}
+a{color:var(--sky)}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.wrap{max-width:1040px;margin:0 auto}
+
+/* header */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-top:12px;padding-bottom:8px;border-bottom:2px solid var(--line)}
+.brand{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:space-between}
+.brand h1{font-size:clamp(22px,4vw,30px);display:flex;align-items:center;gap:10px}
+.brand h1 svg{flex:none}
+.stars{font-family:var(--f-display);font-size:16px;background:var(--sun-soft);border:2px solid var(--sun);padding:2px 12px;border-radius:99px;white-space:nowrap}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:10px 2px 4px;scrollbar-width:thin}
+.tab{flex:none;border:2px solid var(--line);background:var(--surface);border-radius:99px;padding:4px 12px;font-family:var(--f-display);font-size:15px;display:flex;align-items:center;gap:6px;color:var(--muted)}
+.tab .n{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--surface2);font-size:13px;color:var(--ink)}
+.tab[aria-current="true"]{border-color:var(--sky);background:var(--sky);color:var(--on-accent)}
+.tab[aria-current="true"] .n{background:var(--on-accent);color:var(--sky)}
+.tab.done .n{background:var(--leaf);color:var(--on-accent)}
+.tab.sep{border:none;background:none;padding:4px 2px;color:var(--muted);font-size:13px;cursor:default}
+
+/* sections */
+main{padding-top:22px}
+section.m{display:grid;gap:20px}
+section.m[hidden]{display:none}
+.m-head{display:grid;gap:6px}
+.eyebrow{font-family:var(--f-display);color:var(--sky);font-size:16px;letter-spacing:.02em}
+.m-head h2{font-size:clamp(26px,5vw,38px)}
+.m-head .lead{color:var(--muted);max-width:65ch}
+.panel{background:var(--surface);border:2px solid var(--line);border-radius:var(--r);padding:20px;display:grid;gap:14px;min-width:0}
+.panel h3{font-size:22px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.key{background:var(--sun-soft);border-radius:var(--r);padding:16px 18px;border:2px dashed var(--sun)}
+.key b{font-family:var(--f-display);font-weight:400;color:var(--ink)}
+.word{background:linear-gradient(transparent 60%,var(--sun-soft) 60%);font-weight:700}
+.chip{display:inline-block;font-family:var(--f-display);font-size:14px;padding:1px 10px;border-radius:99px;background:var(--sky-soft);color:var(--sky)}
+.chip.a{background:var(--coral-soft);color:var(--coral)}
+.chip.d{background:var(--sky-soft);color:var(--sky)}
+.chip.g{background:var(--leaf-soft);color:var(--leaf)}
+.muted{color:var(--muted)}
+.small{font-size:15px}
+.btn{border:none;border-radius:14px;padding:10px 18px;font-family:var(--f-display);font-size:17px;background:var(--sky);color:var(--on-accent)}
+.btn.ghost{background:var(--surface2);color:var(--ink);border:2px solid var(--line)}
+.btn.sun{background:var(--sun);color:#1D2A39}
+.btn.leaf{background:var(--leaf);color:var(--on-accent)}
+.btn.coral{background:var(--coral);color:var(--on-accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+textarea,input[type=text]{width:100%;font:inherit;font-size:16px;color:var(--ink);background:var(--surface2);border:2px solid var(--line);border-radius:12px;padding:10px 12px}
+textarea{min-height:76px;resize:vertical}
+.feedback{min-height:1.7em;font-family:var(--f-display);font-size:17px}
+.feedback.ok{color:var(--leaf)} .feedback.no{color:var(--coral)}
+.finish{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center;border-top:2px dashed var(--line);padding-top:18px}
+.stamp{font-family:var(--f-display);border:3px solid var(--leaf);color:var(--leaf);background:var(--leaf-soft);border-radius:14px;padding:8px 16px;font-size:17px}
+.stamp[aria-pressed="true"]{background:var(--leaf);color:var(--on-accent)}
+.navbtns{display:flex;gap:8px}
+
+/* home */
+.hero{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:20px;align-items:center;background:var(--sky-soft);border-radius:24px;padding:26px}
+.hero h2{font-size:clamp(28px,6vw,46px)}
+.hero p{max-width:50ch}
+@media (max-width:700px){.hero{grid-template-columns:1fr}}
+.plan{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.plan .panel h3{display:flex;align-items:center;gap:8px}
+.plan ol{margin:0;padding-left:0;list-style:none;display:grid;gap:6px}
+.plan li{display:flex;gap:10px;align-items:baseline}
+.plan li button{all:unset;cursor:pointer;color:var(--sky);font-family:var(--f-display);font-size:17px}
+.plan li .t{font-size:14px;color:var(--muted);white-space:nowrap;margin-left:auto;font-variant-numeric:tabular-nums}
+.goal li{margin-bottom:4px}
+
+/* m1 scene */
+.scene-wrap{border-radius:var(--r);overflow:hidden;border:2px solid var(--line);background:#F4EED9}
+.scene-wrap svg{display:block;width:100%;height:auto}
+.clue{cursor:pointer}
+.clue .ring{fill:none;stroke:#FFC22E;stroke-width:5;stroke-dasharray:10 7;opacity:.95}
+.clue.found .ring{stroke:#1E9E66;stroke-dasharray:none}
+.clue:hover .ring,.clue:focus .ring{stroke-width:8}
+.clue:focus{outline:none}
+@media (prefers-reduced-motion:no-preference){.clue:not(.found) .ring{animation:pulse 1.6s ease-in-out infinite}}
+@keyframes pulse{50%{opacity:.35}}
+.notebook{display:grid;gap:10px}
+.note{display:flex;gap:12px;align-items:flex-start;padding:10px 12px;background:var(--surface2);border-radius:12px;border:2px solid var(--line)}
+.note .ic{flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--sun);color:#1D2A39;font-family:var(--f-display)}
+.note.empty{opacity:.55}
+.suspects{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.suspect{border:2px solid var(--line);background:var(--surface2);border-radius:14px;padding:12px;display:grid;justify-items:center;gap:4px;font-family:var(--f-display);font-size:18px}
+.suspect svg{width:70px;height:70px}
+.suspect.right{border-color:var(--leaf);background:var(--leaf-soft)}
+.suspect.wrong{border-color:var(--coral);background:var(--coral-soft)}
+
+/* m2 */
+.life{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.life .panel{align-content:start}
+.life svg{width:100%;height:120px}
+.idea{display:grid;grid-template-columns:110px minmax(0,1fr);gap:14px;align-items:start;padding:14px;border-radius:14px;background:var(--surface2);border:2px solid var(--line)}
+.idea .pic{display:grid;justify-items:center;gap:4px;font-family:var(--f-display)}
+.idea .pic svg{width:70px;height:70px}
+.idea .ex{font-size:15px;color:var(--leaf);background:var(--leaf-soft);border-radius:10px;padding:6px 10px}
+@media (max-width:480px){.idea{grid-template-columns:1fr}}
+
+/* m3 */
+.weather{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.wv{background:var(--surface2);border:2px solid var(--line);border-radius:14px;padding:10px 12px}
+.wv .l{font-size:14px;color:var(--muted)}
+.wv .v{font-family:var(--f-display);font-size:24px;font-variant-numeric:tabular-nums}
+.form-a{border-color:var(--coral)!important;background:var(--coral-soft)!important}
+.form-d{border-color:var(--sky)!important;background:var(--sky-soft)!important}
+.players{display:flex;gap:8px;flex-wrap:wrap}
+.pl{padding:6px 14px;border-radius:12px;border:2px solid var(--line);background:var(--surface2);font-family:var(--f-display);font-variant-numeric:tabular-nums}
+.pl.on{border-color:var(--sun);background:var(--sun-soft)}
+.board{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;max-width:640px;width:100%;margin:0 auto}
+.card{aspect-ratio:3/4;max-width:100%;border:none;border-radius:14px;padding:0;perspective:600px;background:none}
+.card .in{position:relative;width:100%;height:100%;transition:transform .45s;transform-style:preserve-3d}
+.card.up .in{transform:rotateY(180deg)}
+.card .face,.card .back{position:absolute;inset:0;border-radius:14px;backface-visibility:hidden;display:grid;place-items:center;padding:6px}
+.card .back{background:var(--sky);border:3px solid var(--sky);
+  background-image:radial-gradient(circle at 25% 25%,rgba(255,255,255,.25) 0 10%,transparent 11%),radial-gradient(circle at 75% 70%,rgba(255,255,255,.2) 0 14%,transparent 15%)}
+.card .back span{font-family:var(--f-display);font-size:clamp(20px,5vw,34px);color:var(--on-accent)}
+.card .face{transform:rotateY(180deg);background:var(--surface);border:3px solid var(--line);align-content:center;gap:2px;text-align:center}
+.card .face .e{font-size:clamp(26px,6vw,44px);line-height:1}
+.card .face .t{font-size:clamp(11px,2.4vw,15px);line-height:1.3;font-family:var(--f-display)}
+.card .face .f{font-size:12px;font-family:var(--f-display)}
+.card.taken{opacity:.25}
+@media (prefers-reduced-motion:reduce){.card .in{transition:none}}
+
+/* sorting */
+.pool{display:flex;flex-wrap:wrap;gap:8px;min-height:52px}
+.item{border:2px solid var(--line);background:var(--surface);border-radius:12px;padding:6px 12px;font-size:16px;display:flex;align-items:center;gap:6px}
+.item.sel{border-color:var(--sun);background:var(--sun-soft);box-shadow:0 0 0 3px var(--sun)}
+.item.ok{border-color:var(--leaf);background:var(--leaf-soft);cursor:default}
+.buckets{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.bucket{border:3px dashed var(--line);border-radius:16px;padding:12px;min-height:130px;display:grid;align-content:start;gap:8px;background:var(--surface2);text-align:left}
+.bucket h4{font-size:19px}
+.bucket .got{display:flex;flex-wrap:wrap;gap:6px}
+.bucket.ready{border-color:var(--sun)}
+
+/* m5 classifier */
+.pipe{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:10px;align-items:center}
+.pipe .st{background:var(--surface2);border:2px solid var(--line);border-radius:14px;padding:12px;text-align:center;display:grid;gap:4px}
+.pipe .st b{font-family:var(--f-display);font-weight:400;font-size:18px}
+.pipe .ar{font-family:var(--f-display);font-size:26px;color:var(--sky)}
+@media (max-width:640px){.pipe{grid-template-columns:1fr}.pipe .ar{transform:rotate(90deg);justify-self:center}}
+.ml{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,.8fr) minmax(0,1fr);gap:14px}
+@media (max-width:860px){.ml{grid-template-columns:1fr}}
+.col-h{font-family:var(--f-display);font-size:19px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.cls{border:2px solid var(--line);border-radius:14px;padding:10px;display:grid;gap:8px;background:var(--surface2)}
+.cls-top{display:flex;justify-content:space-between;align-items:center;gap:8px;font-family:var(--f-display)}
+.sw{display:flex;flex-wrap:wrap;gap:5px}
+.sw button{width:30px;height:30px;border-radius:8px;border:2px solid var(--surface);box-shadow:0 0 0 1px var(--line);padding:0}
+.cls .ctrl{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.cls .ctrl button{padding:4px 10px;font-size:14px;border-radius:10px}
+input[type=color]{width:44px;height:34px;border:2px solid var(--line);border-radius:10px;background:var(--surface);padding:2px}
+.need{font-size:13px;color:var(--coral)}
+.need.ok{color:var(--leaf)}
+.bar{height:14px;background:var(--surface2);border:1px solid var(--line);border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--sky);border-radius:99px;transition:width .3s}
+.res{display:grid;gap:8px}
+.res .r{display:grid;grid-template-columns:52px minmax(0,1fr) 54px;gap:8px;align-items:center;font-size:15px;font-variant-numeric:tabular-nums}
+.big-res{font-family:var(--f-display);font-size:26px}
+.light{width:84px}
+
+/* entry blocks */
+.steps{counter-reset:s;display:grid;gap:10px;list-style:none;padding:0;margin:0}
+.steps li{counter-increment:s;display:grid;grid-template-columns:36px minmax(0,1fr);gap:10px;align-items:start;background:var(--surface2);border:2px solid var(--line);border-radius:14px;padding:10px 12px}
+.steps li::before{content:counter(s);width:32px;height:32px;border-radius:50%;background:var(--sky);color:var(--on-accent);display:grid;place-items:center;font-family:var(--f-display)}
+.steps li.chk{cursor:pointer}
+.steps li.chk.on{border-color:var(--leaf);background:var(--leaf-soft)}
+.steps li.chk.on::before{content:"✓";background:var(--leaf)}
+.menu{font-family:var(--f-display);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:0 6px;font-size:15px;white-space:nowrap}
+.code{overflow-x:auto;background:var(--surface2);border:2px solid var(--line);border-radius:14px;padding:14px}
+.blocks{display:grid;gap:3px;justify-items:start;min-width:max-content;font-size:15px}
+.blk{color:#fff;border-radius:8px;padding:5px 12px;font-family:var(--f-body);font-weight:700;display:flex;gap:6px;align-items:center;white-space:nowrap}
+.blk.ev{background:#1FA866;border-radius:18px 8px 8px 8px;padding-left:10px}
+.blk.vi{background:#5767D9}
+.blk.fl{background:#2C93D6}
+.blk.ai{background:#7B5BE0}
+.blk.lk{background:#D94B8C}
+.blk.mv{background:#9B4FD6}
+.blk .slot{background:rgba(255,255,255,.95);color:#1D2A39;border-radius:6px;padding:0 8px;font-weight:700}
+.blk .cond{background:rgba(0,0,0,.18);border-radius:12px;padding:1px 10px}
+.nest{border-left:14px solid #2C93D6;padding:3px 0 3px 6px;display:grid;gap:3px;justify-items:start;border-radius:0 0 0 8px}
+.cmt{font-size:14px;color:var(--muted);margin-left:10px;font-weight:400;font-family:var(--f-body)}
+.sim{border-radius:var(--r);overflow:hidden;border:2px solid var(--line)}
+.sim svg{display:block;width:100%;height:auto}
+
+/* m8 */
+.flip{border:2px solid var(--line);background:var(--surface2);border-radius:14px;padding:14px;text-align:left;display:grid;gap:6px;align-content:start;min-height:120px}
+.flip .q{font-family:var(--f-display);font-size:18px}
+.flip .a{font-size:15px}
+.flip.open{border-color:var(--grape);background:var(--grape-soft)}
+.flip .hint{font-size:13px;color:var(--muted)}
+.gen{background:var(--grape-soft);border:2px solid var(--grape);border-radius:var(--r);padding:20px;display:grid;gap:12px}
+.gen h3{color:var(--grape)}
+
+/* quiz */
+.qz{display:grid;gap:14px}
+.qq{background:var(--surface);border:2px solid var(--line);border-radius:var(--r);padding:16px;display:grid;gap:10px}
+.qq h4{font-size:19px}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opts button{border:2px solid var(--line);background:var(--surface2);border-radius:12px;padding:6px 14px;font-size:16px}
+.opts button.right{border-color:var(--leaf);background:var(--leaf-soft)}
+.opts button.wrong{border-color:var(--coral);background:var(--coral-soft)}
+.score{font-family:var(--f-display);font-size:28px;text-align:center;padding:18px;border-radius:var(--r);background:var(--sun-soft);border:2px solid var(--sun)}
+
+/* certificate */
+.cert{background:var(--sun-soft);border:3px solid var(--sun);border-radius:var(--r);padding:20px;display:grid;gap:12px}
+.cert h3{font-size:24px}
+.cert .todo{display:flex;flex-wrap:wrap;gap:8px}
+.cert .todo span{font-family:var(--f-display);font-size:15px;padding:2px 12px;border-radius:99px;border:2px solid var(--line);background:var(--surface)}
+.cert .todo span.ok{border-color:var(--leaf);background:var(--leaf-soft);color:var(--leaf)}
+.cert canvas{width:100%;max-width:600px;height:auto;border-radius:12px;border:2px solid var(--line);background:#fff;justify-self:center}
+
+/* ===== 실습실 2 추가 스타일 ===== */
+.hero.robot{background:var(--grape-soft)}
+.hero.robot .eyebrow{color:var(--grape)}
+.toplink{font-family:var(--f-display);font-size:15px;text-decoration:none;border:2px solid var(--line);background:var(--surface);color:var(--muted);border-radius:99px;padding:2px 12px;white-space:nowrap}
+.brand .right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.blk.hw{background:#2E9E4F}
+.blk.led{background:#E8772E}
+.blk.sen{background:#B8336A}
+.blk.vo{background:#7B5BE0}
+.blk .num{background:#FFE08A;color:#1D2A39;border-radius:99px;padding:0 8px;font-weight:700}
+/* robot parts */
+.partwrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:18px;align-items:center}
+@media (max-width:760px){.partwrap{grid-template-columns:1fr}}
+.partsvg{width:100%;max-width:320px;justify-self:center}
+.partsvg .hl{fill:none;stroke:#FFC22E;stroke-width:5;stroke-dasharray:8 6;opacity:0;transition:opacity .2s}
+.partsvg .hl.on{opacity:1}
+.pbtns{display:flex;flex-wrap:wrap;gap:8px}
+.pbtns button{border:2px solid var(--line);background:var(--surface2);border-radius:12px;padding:6px 14px;font-family:var(--f-display);font-size:16px}
+.pbtns button[aria-pressed="true"]{border-color:var(--sky);background:var(--sky);color:var(--on-accent)}
+.pinfo{background:var(--surface2);border:2px solid var(--line);border-radius:14px;padding:14px;display:grid;gap:6px;min-height:120px}
+.pinfo b{font-family:var(--f-display);font-weight:400;font-size:20px}
+/* grid game */
+.gg{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+@media (max-width:760px){.gg{grid-template-columns:1fr}}
+.room{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;background:var(--line);padding:4px;border-radius:14px;max-width:380px;width:100%;justify-self:center;aspect-ratio:1}
+.room div{background:var(--surface);border-radius:8px;display:grid;place-items:center;font-size:clamp(18px,5vw,28px);position:relative}
+.room .ob{background:#C9A27A}
+.room .gl{background:var(--leaf-soft)}
+.room .bot{transition:transform .2s;display:inline-block;line-height:1}
+.prog{display:flex;flex-wrap:wrap;gap:6px;min-height:46px;background:var(--surface2);border:2px dashed var(--line);border-radius:12px;padding:8px}
+.prog span{font-family:var(--f-display);font-size:15px;background:var(--sky);color:var(--on-accent);border-radius:8px;padding:2px 10px}
+.prog span.run{background:var(--sun);color:#1D2A39}
+.qrow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 12px;border:2px solid var(--line);border-radius:12px;background:var(--surface2)}
+@media (max-width:620px){.qrow{grid-template-columns:1fr}}
+.qrow .opts button{padding:4px 12px;font-size:15px}
+/* order */
+.order{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.ordc{border:2px solid var(--line);background:var(--surface2);border-radius:14px;padding:12px;text-align:left;display:grid;gap:4px}
+.ordc b{font-family:var(--f-display);font-weight:400;font-size:18px}
+.ordc .no{font-family:var(--f-display);font-size:14px;color:var(--muted)}
+.ordc.ok{border-color:var(--leaf);background:var(--leaf-soft)}
+.ordc.ok .no{color:var(--leaf)}
+.ordc.bad{border-color:var(--coral);background:var(--coral-soft)}
+/* tech cards */
+.tech{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.tech .panel{gap:8px;align-content:start}
+.tech .ic{font-size:34px;line-height:1}
+/* parts checklist */
+.parts{display:flex;flex-wrap:wrap;gap:8px}
+.parts button{border:2px solid var(--line);background:var(--surface2);border-radius:12px;padding:6px 12px;font-size:15px}
+.parts button.on{border-color:var(--leaf);background:var(--leaf-soft)}
+.parts button.on::before{content:"✓ ";color:var(--leaf);font-weight:700}
+/* port game */
+.portgame{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:16px;align-items:start}
+@media (max-width:760px){.portgame{grid-template-columns:1fr}}
+.dev{display:grid;gap:8px}
+.dev button{border:2px solid var(--line);background:var(--surface2);border-radius:12px;padding:8px 12px;font-family:var(--f-display);font-size:16px;text-align:left;display:flex;justify-content:space-between;gap:8px}
+.dev button.sel{border-color:var(--sun);background:var(--sun-soft);box-shadow:0 0 0 3px var(--sun)}
+.dev button.ok{border-color:var(--leaf);background:var(--leaf-soft)}
+.dev button .to{font-size:14px;color:var(--leaf)}
+.board2{width:100%;max-width:460px;justify-self:center}
+.board2 .port{cursor:pointer}
+.board2 .port rect{fill:#FFFFFF;stroke:#7A8B9C;stroke-width:2}
+.board2 .port.ready rect{stroke:#FFC22E;stroke-width:4}
+.board2 .port.ok rect{fill:#DDF5E9;stroke:#1E9E66;stroke-width:3}
+.board2 .port:focus{outline:none}
+.board2 .port:focus-visible rect{stroke:#FFC22E;stroke-width:5}
+.board2 .port text{font-family:Jua,sans-serif;font-size:15px;fill:#1D2A39}
+/* sims */
+.simbox{border-radius:var(--r);overflow:hidden;border:2px solid var(--line);background:#F7F4EC}
+.simbox svg,.simbox canvas{display:block;width:100%;height:auto}
+.meter{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.ctrls{display:grid;gap:10px}
+.ctrls label{font-size:15px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+input[type=range]{width:min(260px,100%);accent-color:var(--sky)}
+.cmdbtns{display:flex;flex-wrap:wrap;gap:8px}
+.cmdbtns .btn{min-width:84px}
+.heard{font-family:var(--f-display);font-size:20px}
+/* eval */
+.ev{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 14px;border-radius:14px;background:var(--sun-soft);border:2px solid var(--sun)}
+@media (max-width:560px){.ev{grid-template-columns:1fr}}
+.dots{display:flex;gap:6px}
+.dots button{width:34px;height:34px;border-radius:50%;border:3px solid #E0A800;background:var(--surface);padding:0}
+.dots button.on{background:#FFC22E}
+/* bingo */
+.bingo{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media (max-width:620px){.bingo{grid-template-columns:1fr}}
+.bc{border:3px solid var(--line);background:var(--surface);border-radius:14px;padding:12px;display:grid;gap:8px;align-content:space-between;min-height:150px}
+.bc p{font-size:15px;line-height:1.55}
+.bc .opts{gap:6px}
+.bc .opts button{padding:3px 12px;font-size:15px}
+.bc.right{border-color:var(--leaf);background:var(--leaf-soft)}
+.bc.wrong{border-color:var(--coral);background:var(--coral-soft)}
+.bc .ans{font-size:14px}
+.job{display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px;align-items:center;background:var(--leaf-soft);border:2px solid var(--leaf);border-radius:var(--r);padding:16px}
+.job .ic{font-size:44px}
+</style>
+</head>
+<body>
+
+<div class="top"><div class="wrap">
+  <div class="brand">
+    <h1><svg width="36" height="36" viewBox="0 0 40 40" aria-hidden="true"><rect x="6" y="9" width="28" height="20" rx="7" fill="var(--grape)"/><circle cx="15" cy="19" r="4" fill="#fff"/><circle cx="25" cy="19" r="4" fill="#fff"/><circle cx="15" cy="19" r="2" fill="#1D2A39"/><circle cx="25" cy="19" r="2" fill="#1D2A39"/><rect x="18.5" y="2" width="3" height="7" fill="var(--grape)"/><circle cx="20" cy="3" r="3" fill="var(--sun)"/><circle cx="12" cy="33" r="5" fill="#1D2A39"/><circle cx="28" cy="33" r="5" fill="#1D2A39"/><circle cx="12" cy="33" r="2" fill="#fff"/><circle cx="28" cy="33" r="2" fill="#fff"/></svg>로봇과 인공지능 실습실</h1>
+    <div class="right"><a class="toplink" href="../">← 실습실 1 (데이터와 AI)</a><span class="stars" id="stars">★ 0 / 10 미션</span></div>
+  </div>
+  <nav class="tabs" id="tabs" aria-label="미션 목록"></nav>
+</div></div>
+
+<main class="wrap" id="main">
+
+<!-- HOME -->
+<section class="m" id="m0" data-title="시작">
+  <div class="hero robot">
+    <div style="display:grid;gap:12px">
+      <span class="eyebrow">6. 인공지능과 로봇의 만남 · 02 로봇과 인공지능</span>
+      <h2>로봇을 알아보고<br>자율주행 로봇을 만들어 봐요!</h2>
+      <p>로봇이 무엇이고 어떻게 생겼는지, 어디에서 어떻게 일하는지 알아본 다음, <b>네오봇</b>을 조립하고 <b>엔트리</b>로 프로그래밍해서 말을 알아듣고 신호등을 보고 멈추는 자율주행 로봇을 만들어요. 미션을 끝내면 <b>미션 완료</b> 도장을 눌러 별을 모으세요.</p>
+      <div class="row"><button class="btn sun" data-go="m1">미션 1부터 시작하기</button></div>
+    </div>
+    <svg viewBox="0 0 300 230" aria-hidden="true" style="width:100%;max-width:340px;justify-self:center">
+      <ellipse cx="150" cy="212" rx="110" ry="10" fill="#1D2A39" opacity=".12"/>
+      <rect x="70" y="110" width="160" height="70" rx="12" fill="#F2F2F2" stroke="#7A5AD8" stroke-width="5"/>
+      <g fill="#C9CDD3"><circle cx="90" cy="125" r="4"/><circle cx="105" cy="125" r="4"/><circle cx="195" cy="125" r="4"/><circle cx="210" cy="125" r="4"/></g>
+      <rect x="110" y="120" width="80" height="45" rx="6" fill="#7FD6B5"/><rect x="120" y="130" width="22" height="10" rx="2" fill="#fff"/><rect x="150" y="130" width="30" height="10" rx="2" fill="#fff"/><circle cx="170" cy="153" r="6" fill="#F0584A"/>
+      <rect x="100" y="70" width="70" height="40" rx="8" fill="#1D2A39"/><circle cx="135" cy="90" r="13" fill="#3C4A5C"/><circle cx="135" cy="90" r="6" fill="#5AE0FF"/>
+      <rect x="185" y="80" width="26" height="30" rx="4" fill="#FFC22E"/><circle cx="198" cy="72" r="9" fill="#FFF3CF" stroke="#FFC22E" stroke-width="3"/>
+      <rect x="60" y="165" width="34" height="22" rx="5" fill="#F0584A"/>
+      <circle cx="90" cy="190" r="26" fill="#1D2A39"/><circle cx="90" cy="190" r="12" fill="#E8EDF2"/>
+      <circle cx="215" cy="190" r="26" fill="#1D2A39"/><circle cx="215" cy="190" r="12" fill="#E8EDF2"/>
+      <g font-family="Jua, sans-serif" font-size="17">
+        <rect x="4" y="18" width="78" height="34" rx="10" fill="#FFE4E0"/><text x="43" y="41" text-anchor="middle" fill="#F0584A">“직진!”</text>
+        <rect x="214" y="14" width="80" height="34" rx="10" fill="#DDF5E9"/><text x="254" y="37" text-anchor="middle" fill="#1E9E66">🚦 빨강</text>
+        <rect x="4" y="84" width="62" height="30" rx="10" fill="#DCEEFD"/><text x="35" y="105" text-anchor="middle" fill="#1F7FD6">감지</text>
+        <rect x="236" y="84" width="62" height="30" rx="10" fill="#ECE6FC"/><text x="267" y="105" text-anchor="middle" fill="#7A5AD8">제어</text>
+      </g>
+    </svg>
+  </div>
+  <div class="panel goal">
+    <h3>이번 시간에 배울 것</h3>
+    <ul style="margin:0;padding-left:22px">
+      <li>로봇의 개념과 구조를 이해하고, 생활 속 로봇을 체험하여 로봇의 중요성을 설명할 수 있어요.</li>
+      <li>로봇의 활용 사례를 통해 작동 원리를 설명할 수 있어요.</li>
+      <li>코딩과 프로그램을 적용하여 동작시키는 로봇 체험을 통해 융합 기술의 가치를 인식할 수 있어요.</li>
+    </ul>
+  </div>
+  <div class="plan">
+    <div class="panel"><h3><span class="chip">1차시 · 40분</span> 로봇과 친해지기</h3><ol id="plan1"></ol></div>
+    <div class="panel"><h3><span class="chip g">2차시 · 40분</span> 자율주행 로봇 만들기</h3><ol id="plan2"></ol></div>
+  </div>
+  <div class="panel small muted" style="gap:6px">
+    <b style="color:var(--ink)">네오봇 · 엔트리 실습 준비물 (2차시)</b>
+    <span>모둠별 네오봇 키트(제어 장치, 전동기 2개, 빛 센서, 적외선 센서, 발광 다이오드, 블록·바퀴·핀), 동글, 웹캠(카메라), 엔트리 하드웨어 연결 프로그램이 설치된 컴퓨터, 엔트리 사이트(<a href="https://playentry.org" target="_blank" rel="noopener">playentry.org</a>) 로그인, 신호등(빨강·초록) 그림, 흰색 탁자와 검은색 테이프, 터널로 쓸 상자. 신호등 색 분류 모델은 지난 시간(실습실 1, 미션 7)에 만든 모델을 써요.</span>
+  </div>
+</section>
+
+<!-- M1 -->
+<section class="m" id="m1" data-title="사이배슬론" hidden>
+  <div class="m-head"><span class="eyebrow">미션 1 · 생각 펼치기</span><h2>사이배슬론 경기장에 가 봐요</h2>
+    <p class="lead"><span class="word">국제 사이배슬론 대회</span>는 로봇 기술의 도움으로 신체 장애를 극복하며 겨루는 경기 대회예요. 경기 카드를 눌러 로봇 기술이 사람을 어떻게 돕고 있는지 알아보세요.</p></div>
+  <div class="grid3" id="cyb"></div>
+  <p class="small muted" id="cyb-c" aria-live="polite"></p>
+  <div class="panel">
+    <h3>생각해 보기</h3>
+    <p>신체 일부가 불편한 사람들에게 로봇은 어떤 의미일까요? 로봇은 사람에게 어떤 도움을 주고 있나요?</p>
+    <textarea data-save="m1-think" placeholder="예) 걷기 어려운 사람이 다시 걸을 수 있게 도와줘요."></textarea>
+  </div>
+  <div class="finish" data-m="m1"></div>
+</section>
+
+<!-- M2 -->
+<section class="m" id="m2" data-title="로봇의 구조" hidden>
+  <div class="m-head"><span class="eyebrow">미션 2 · 로봇의 개념과 구조</span><h2>로봇은 무엇으로 이루어져 있을까?</h2></div>
+  <div class="key"><b>로봇이란?</b> 외부 환경을 인식하고 스스로 판단하여 움직이거나, 프로그래밍된 명령에 따라 특정 작업을 수행하는 <span class="word">기계 장치</span>예요. 로봇은 다양한 분야에서 효율성을 높이는 데 기여하고, 우리의 삶을 편리하고 안전하게 만들어 줘요.</div>
+  <div class="panel">
+    <h3>로봇의 구조 살펴보기</h3>
+    <p class="small">로봇은 일반적으로 <b>감지 장치, 제어 장치, 전원 장치, 구동 장치, 몸체</b> 등으로 구성돼요. 버튼을 눌러 각 장치가 사람의 어느 부분과 닮았는지 알아보세요.</p>
+    <div class="partwrap">
+      <svg class="partsvg" viewBox="0 0 220 300" aria-hidden="true">
+        <rect x="70" y="14" width="80" height="62" rx="16" fill="#E8EDF2" stroke="#56687B" stroke-width="3"/>
+        <circle cx="95" cy="44" r="10" fill="#1D2A39"/><circle cx="125" cy="44" r="10" fill="#1D2A39"/><circle cx="95" cy="44" r="4" fill="#5AE0FF"/><circle cx="125" cy="44" r="4" fill="#5AE0FF"/>
+        <rect x="104" y="0" width="12" height="14" fill="#56687B"/>
+        <rect x="58" y="84" width="104" height="104" rx="14" fill="#C9D3DD" stroke="#56687B" stroke-width="3"/>
+        <rect x="84" y="96" width="52" height="34" rx="6" fill="#7FD6B5"/><path d="M92 113h10l4-8 6 16 4-8h12" stroke="#1D2A39" stroke-width="2" fill="none"/>
+        <rect x="88" y="142" width="44" height="34" rx="6" fill="#FFC22E"/><path d="M106 148l-6 12h8l-4 12 12-16h-8l4-8z" fill="#1D2A39"/>
+        <rect x="30" y="88" width="24" height="80" rx="12" fill="#AFC0D0" stroke="#56687B" stroke-width="3"/><rect x="166" y="88" width="24" height="80" rx="12" fill="#AFC0D0" stroke="#56687B" stroke-width="3"/>
+        <circle cx="42" cy="96" r="7" fill="#7A5AD8"/><circle cx="178" cy="96" r="7" fill="#7A5AD8"/>
+        <rect x="70" y="196" width="30" height="90" rx="12" fill="#AFC0D0" stroke="#56687B" stroke-width="3"/><rect x="120" y="196" width="30" height="90" rx="12" fill="#AFC0D0" stroke="#56687B" stroke-width="3"/>
+        <circle cx="85" cy="238" r="8" fill="#7A5AD8"/><circle cx="135" cy="238" r="8" fill="#7A5AD8"/>
+        <rect class="hl" data-p="sense" x="74" y="28" width="72" height="32" rx="12"/>
+        <rect class="hl" data-p="ctrl" x="78" y="90" width="64" height="46" rx="10"/>
+        <rect class="hl" data-p="power" x="82" y="137" width="56" height="44" rx="10"/>
+        <g class="hl" data-p="drive"><rect x="24" y="82" width="36" height="92" rx="14"/><rect x="160" y="82" width="36" height="92" rx="14"/><rect x="64" y="190" width="42" height="102" rx="14"/><rect x="114" y="190" width="42" height="102" rx="14"/></g>
+        <g class="hl" data-p="body"><rect x="52" y="78" width="116" height="116" rx="16"/><rect x="64" y="8" width="92" height="74" rx="18"/></g>
+      </svg>
+      <div style="display:grid;gap:12px">
+        <div class="pbtns" id="pbtns"></div>
+        <div class="pinfo" id="pinfo" aria-live="polite"><b>장치를 골라 보세요</b><span class="small muted">왼쪽 로봇 그림에서 해당 장치가 노란 점선으로 표시돼요.</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="panel">
+    <h3>로봇 부품 분류하기</h3>
+    <p class="small">① 아래 부품 카드를 하나 누르고 ② 어떤 장치에 속하는지 상자를 누르세요.</p>
+    <div class="pool" id="pool2"></div>
+    <div class="buckets" id="buckets2">
+      <button class="bucket" data-b="s"><h4 style="color:var(--sky)">감지 장치</h4><span class="small muted">사람의 눈·귀·피부</span><div class="got"></div></button>
+      <button class="bucket" data-b="c"><h4 style="color:var(--grape)">제어 장치</h4><span class="small muted">사람의 두뇌</span><div class="got"></div></button>
+      <button class="bucket" data-b="p"><h4 style="color:#B07800">전원 장치</h4><span class="small muted">사람이 먹는 음식</span><div class="got"></div></button>
+      <button class="bucket" data-b="d"><h4 style="color:var(--leaf)">구동 장치</h4><span class="small muted">사람의 팔·다리</span><div class="got"></div></button>
+    </div>
+    <p class="feedback" id="sort2-fb" aria-live="polite"></p>
+  </div>
+  <p class="small muted">해 보기: 로봇이 우리 생활 속에서 중요한 역할을 하고 있는 사례를 찾아 발표해 봐요.</p>
+  <div class="finish" data-m="m2"></div>
+</section>
+
+<!-- M3 -->
+<section class="m" id="m3" data-title="로봇 기능 체험" hidden>
+  <div class="m-head"><span class="eyebrow">미션 3 · 함께 해 보기</span><h2>내가 로봇이 되어 볼까?</h2>
+    <p class="lead">짝과 함께 한 명은 <b>로봇</b>, 다른 한 명은 <b>로봇 프로그래머</b>가 되어 로봇 기능 체험 놀이를 해요. 먼저 화면 속 교실 로봇으로 연습해 보세요.</p></div>
+  <div class="panel">
+    <h3>연습 · 교실 로봇을 목표까지 보내기</h3>
+    <p class="small">명령 버튼을 차례로 눌러 프로그램을 만든 뒤 <b>실행</b>을 누르세요. 🤖가 책상(🪑)에 부딪히지 않고 ⭐까지 가면 성공! 🤖는 처음에 오른쪽(→)을 보고 있어요.</p>
+    <div class="gg">
+      <div class="room" id="room" aria-label="교실 지도"></div>
+      <div style="display:grid;gap:10px;align-content:start">
+        <div class="row"><button class="btn" data-cmd="F">⬆ 앞으로 한 칸</button><button class="btn ghost" data-cmd="L">↺ 왼쪽으로 돌기</button><button class="btn ghost" data-cmd="R">↻ 오른쪽으로 돌기</button></div>
+        <div class="prog" id="prog" aria-live="polite"></div>
+        <div class="row"><button class="btn leaf" id="g-run">▶ 실행</button><button class="btn ghost" id="g-undo">한 개 지우기</button><button class="btn ghost" id="g-clear">처음부터</button><button class="btn ghost" id="g-new">다른 교실</button></div>
+        <p class="feedback" id="g-fb" aria-live="polite"></p>
+      </div>
+    </div>
+  </div>
+  <div class="panel">
+    <h3>교실에서 함께 해 보기</h3>
+    <ol class="steps">
+      <li><span>짝과 함께 한 명은 로봇이 되고, 다른 한 명은 로봇 프로그래머가 돼요.</span></li>
+      <li><span>말하지 않고 조정할 수 있도록 신호와 그에 따른 행동을 서로 약속해요. (예: 어깨 두 번 톡톡 = 앞으로 한 걸음)</span></li>
+      <li><span>선생님의 신호에 따라 로봇을 조정하며, 다른 로봇이나 교실 안의 사물에 부딪히지 않도록 유의하며 안전하게 교실 안을 이동해요.</span></li>
+    </ol>
+  </div>
+  <div class="panel">
+    <h3>이야기해 보기 · 내가 로봇일 때 어디가 무슨 장치일까?</h3>
+    <div style="display:grid;gap:8px" id="role-q"></div>
+  </div>
+  <div class="finish" data-m="m3"></div>
+</section>
+
+<!-- M4 -->
+<section class="m" id="m4" data-title="로봇의 활용" hidden>
+  <div class="m-head"><span class="eyebrow">미션 4 · 로봇의 활용과 작동 원리</span><h2>로봇은 어디에서 일할까?</h2>
+    <p class="lead">로봇은 원래 사람이 하기 어렵거나 힘든 일을 대신하는 장치였지만, 최근 인공지능 기술과 결합하면서 활용 분야가 크게 넓어지고 있어요. 로봇은 활용 분야에 따라 세 가지로 나눌 수 있어요.</p></div>
+  <div class="grid3">
+    <div class="panel" style="border-color:var(--sky)"><h3 style="color:var(--sky)">개인 서비스용 로봇</h3><p class="small">교육·청소 등 생활 서비스를 제공해요.</p></div>
+    <div class="panel" style="border-color:var(--coral)"><h3 style="color:var(--coral)">전문 서비스용 로봇</h3><p class="small">의료·탐사·화재 진압 등 전문적인 일을 해요.</p></div>
+    <div class="panel" style="border-color:var(--leaf)"><h3 style="color:var(--leaf)">산업용 로봇</h3><p class="small">산업 현장에서 조립·운반 등을 담당해요.</p></div>
+  </div>
+  <div class="panel">
+    <h3>로봇 분류하기</h3>
+    <p class="small">① 로봇 카드를 하나 누르고 ② 알맞은 상자를 누르세요.</p>
+    <div class="pool" id="pool4"></div>
+    <div class="buckets" id="buckets4">
+      <button class="bucket" data-b="p"><h4 style="color:var(--sky)">개인 서비스용</h4><div class="got"></div></button>
+      <button class="bucket" data-b="e"><h4 style="color:var(--coral)">전문 서비스용</h4><div class="got"></div></button>
+      <button class="bucket" data-b="i"><h4 style="color:var(--leaf)">산업용</h4><div class="got"></div></button>
+    </div>
+    <p class="feedback" id="sort4-fb" aria-live="polite"></p>
+  </div>
+  <div class="panel">
+    <h3>화재 진압 로봇은 어떻게 작동할까?</h3>
+    <p class="small">화재 진압 로봇은 화재를 감지하고 불을 끄며, 수시로 정보를 수집하여 현장을 안전하게 관리해요. 작동하는 <b>순서대로</b> 카드를 눌러 보세요.</p>
+    <div class="order" id="fire"></div>
+    <div class="row"><p class="feedback" id="fire-fb" aria-live="polite"></p><button class="btn ghost" id="fire-re">다시 하기</button></div>
+  </div>
+  <div class="panel">
+    <h3>스스로 해 보기 · 미래의 로봇 상상해 보기</h3>
+    <p class="small">미래에는 어떤 로봇이 등장할지 상상해 봐요. 그림은 활동지(126쪽 활동지 4)에 그리고, 여기에는 설명을 적어 친구들에게 발표해요.</p>
+    <div class="grid2">
+      <label class="small" style="display:grid;gap:4px">로봇 이름<input type="text" data-save="m4-name" placeholder="예) 바다 쓰레기 청소 로봇"></label>
+      <label class="small" style="display:grid;gap:4px">상상하게 된 이유<input type="text" data-save="m4-why" placeholder="예) 바다에 쓰레기가 너무 많아서"></label>
+    </div>
+    <label class="small" style="display:grid;gap:4px">작동 원리 (감지 장치 → 제어 장치 → 구동 장치)<textarea data-save="m4-how" placeholder="예) 카메라로 쓰레기를 찾고(감지) → 쓰레기인지 판단해서(제어) → 로봇 팔로 집어요(구동)."></textarea></label>
+  </div>
+  <div class="finish" data-m="m4"></div>
+</section>
+
+<!-- M5 -->
+<section class="m" id="m5" data-title="로봇 융합 기술" hidden>
+  <div class="m-head"><span class="eyebrow">미션 5 · 로봇과 융합 기술</span><h2>똑똑한 로봇의 비밀, 융합 기술</h2>
+    <p class="lead">식당에서 음식을 손님에게 가져다주는 로봇, 집으로 물건을 배달하는 자율주행 로봇처럼 로봇이 할 수 있는 일이 점점 다양해지고 있어요. 최근에는 인공지능 기술이 발전하여 주변 환경을 스스로 학습하고 사람의 음성을 인식하여 명령을 수행하는 로봇도 개발되고 있어요.</p></div>
+  <div class="tech">
+    <div class="panel"><span class="ic">👀</span><h3>상황 인식 기술</h3><p class="small">센서를 통해 사람, 사물, 신호등, 차선 등의 다양한 환경을 파악해요.</p></div>
+    <div class="panel"><span class="ic">📍</span><h3>위치 인식 기술</h3><p class="small">내부 및 외부의 센서를 활용해 스스로 현재의 위치를 파악해요.</p></div>
+    <div class="panel"><span class="ic">🦾</span><h3>동작 제어 기술</h3><p class="small">주변 환경을 인식하여 움직임을 정밀하게 제어해요.</p></div>
+    <div class="panel"><span class="ic">🛣️</span><h3>자율 이동 기술</h3><p class="small">경로를 탐색하여 장애물을 피해 목표 지점까지 이동해요.</p></div>
+  </div>
+  <div class="panel">
+    <h3>스스로 해 보기 · 음식 운반 로봇의 융합 기술 찾기</h3>
+    <p class="small">음식 운반 로봇이 하는 일을 읽고, 어떤 융합 기술이 쓰였는지 골라 보세요.</p>
+    <div style="display:grid;gap:8px" id="serve"></div>
+  </div>
+  <div class="panel">
+    <h3>조사해 보기 · 우리 주변의 융합 기술 로봇</h3>
+    <p class="small">우리 주변의 로봇(예: 로봇 청소기, 배달 로봇, 안내 로봇)을 하나 골라 어떤 융합 기술이 적용되어 있는지 적어 봐요.</p>
+    <textarea data-save="m5-research" placeholder="예) 로봇 청소기: 센서로 벽과 장애물을 알아채고(상황 인식), 지도를 만들어 내 위치를 알고(위치 인식), 장애물을 피해 집 안을 돌아다녀요(자율 이동)."></textarea>
+  </div>
+  <div class="cert" data-lesson="1"></div>
+  <div class="finish" data-m="m5"></div>
+</section>
+
+<!-- M6 -->
+<section class="m" id="m6" data-title="네오봇 조립" hidden>
+  <div class="m-head"><span class="eyebrow">미션 6 · 자율주행 로봇 만들기 ① 로봇 본체 조립하기</span><h2>네오봇으로 자율주행 로봇 조립하기</h2>
+    <p class="lead">로봇에 이미지 인식 인공지능 기술을 융합하면 자율주행 로봇을 만들 수 있어요. 먼저 준비물을 확인하고 로봇 본체를 조립해요.</p></div>
+  <div class="panel">
+    <h3>준비물 확인하기 <span class="chip" id="parts-c">0 / 16</span></h3>
+    <p class="small">모둠 상자에서 찾은 부품을 눌러 체크하세요.</p>
+    <div class="parts" id="parts"></div>
+  </div>
+  <div class="grid2">
+    <div class="panel" style="border-color:var(--sun)"><h3>💡 빛 센서</h3><p class="small">빛의 밝기를 감지하는 장치예요. <b>밝을수록 감지되는 값이 커져요.</b></p></div>
+    <div class="panel" style="border-color:var(--coral)"><h3>🔴 적외선 센서</h3><p class="small">적외선을 감지하여 물체를 인식하거나 거리와 위치를 측정하는 장치예요. 이를 활용해 로봇은 주변 구역의 경로를 파악하고 설정한 경로를 따라 이동할 수 있어요. <b>검은색은 반사되어 들어오는 적외선이 적어서 센서값이 작아요.</b></p></div>
+  </div>
+  <div class="panel">
+    <h3>조립하기</h3>
+    <ol class="steps chk-list" data-key="build">
+      <li class="chk"><span><b>아래 작은 바퀴</b>: 10칸 블록 2개 사이에 막힘 축과 작은 바퀴를 끼워 바퀴 받침을 만들어요.</span></li>
+      <li class="chk"><span><b>전동기와 큰 바퀴</b>: 전동기 2개를 제어 장치 아래 양쪽에 붙이고 큰 바퀴를 전동기 축에 끼워요.</span></li>
+      <li class="chk"><span><b>적외선 센서</b>: 로봇 앞쪽 아래에 바닥을 바라보도록 붙여요. (바닥의 검은색 차선을 읽어야 해요.)</span></li>
+      <li class="chk"><span><b>빛 센서</b>: 제어 장치 옆에 위를 향하도록 붙여요. (터널에 들어가면 어두워지는 것을 감지해요.)</span></li>
+      <li class="chk"><span><b>발광 다이오드</b>: 굽은 블록과 핀으로 로봇 앞쪽 위에 달아요.</span></li>
+      <li class="chk"><span><b>카메라</b>: 블록 안쪽 공간에 카메라를 끼워 넣고, 2×8·2×6 블록과 6×10 블록으로 위를 덮어 고정해요.</span></li>
+      <li class="chk"><span><b>케이블 연결</b>: 아래 연결 연습에서 확인한 단자에 케이블을 꽂아요.</span></li>
+    </ol>
+  </div>
+  <div class="panel">
+    <h3>연결 연습 · 어느 단자에 꽂을까?</h3>
+    <p class="small">① 왼쪽 부품을 누르고 ② 제어 장치 그림에서 꽂을 단자를 누르세요. 교과서 프로그램과 똑같이 연결해야 프로그램이 제대로 작동해요.</p>
+    <div class="portgame">
+      <div class="dev" id="devs"></div>
+      <svg class="board2" id="board2" viewBox="0 0 460 330" aria-label="네오봇 제어 장치 단자 그림">
+        <rect x="140" y="60" width="180" height="210" rx="14" fill="#BFEAD9" stroke="#56687B" stroke-width="3"/>
+        <rect x="165" y="95" width="130" height="80" rx="8" fill="#E8F7F1"/>
+        <text x="230" y="140" text-anchor="middle" font-family="Jua,sans-serif" font-size="20" fill="#1E9E66">제어 장치</text>
+        <circle cx="200" cy="215" r="14" fill="#fff" stroke="#56687B" stroke-width="2"/><circle cx="260" cy="215" r="8" fill="#F0584A"/>
+      </svg>
+    </div>
+    <p class="feedback" id="port-fb" aria-live="polite"></p>
+    <p class="small muted">교과서 그림과 프로그램에서 쓰는 단자 번호가 다르게 보일 수 있어요. 가장 중요한 규칙은 <b>로봇에 꽂은 단자 번호와 블록에서 고른 번호가 같아야 한다</b>는 것! 엔트리 하드웨어 창에서 센서를 손으로 가렸을 때 값이 변하는 단자를 확인하세요.</p>
+  </div>
+  <div class="finish" data-m="m6"></div>
+</section>
+
+<!-- M7 -->
+<section class="m" id="m7" data-title="로봇 구동" hidden>
+  <div class="m-head"><span class="eyebrow">미션 7 · 자율주행 로봇 만들기 ② 로봇 구동하기</span><h2>터널에 들어가면 불이 켜지는 로봇</h2>
+    <p class="lead">로봇을 구동하려면 로봇 제어 프로그램으로 프로그래밍한 후 제어 장치에 전달해야 해요. 로봇이 앞으로 이동하면서 어두워지면 발광 다이오드가 켜지는 <span class="word">병렬 처리</span> 프로그램을 만들어요.</p></div>
+  <div class="row"><a class="btn" href="https://playentry.org" target="_blank" rel="noopener" style="text-decoration:none">엔트리 열기 (playentry.org)</a><span class="small muted">새 탭에서 열려요. 작품 만들기로 들어가세요.</span></div>
+  <div class="panel">
+    <h3>1. 로봇과 컴퓨터 연결하기</h3>
+    <ol class="steps chk-list" data-key="conn">
+      <li class="chk"><span>컴퓨터 USB 포트에 <b>동글</b>과 <b>카메라</b> 단자를 꽂고, 로봇의 전원을 켜요.</span></li>
+      <li class="chk"><span>엔트리에서 블록 꾸러미 <span class="menu">하드웨어</span> → <span class="menu">연결 프로그램 열기</span>를 선택해요. (연결 프로그램이 없으면 <span class="menu">연결 프로그램 다운로드</span>로 먼저 설치해요.)</span></li>
+      <li class="chk"><span>연결 프로그램 목록에서 로봇에 맞는 하드웨어(<b>네오봇</b>)를 찾아 연결해요.</span></li>
+      <li class="chk"><span>블록 꾸러미에 로봇 블록이 나타나고, 오브젝트 목록의 하드웨어 창에 센서 값이 보이면 성공!</span></li>
+    </ol>
+    <div class="key small"><b>동글(dongle)이란?</b> USB와 같은 외부 단자에 연결하여 다른 외부 장치를 사용할 수 있도록 도와주는 장치예요. 동글 덕분에 컴퓨터와 로봇이 선 없이 이야기할 수 있어요.</div>
+  </div>
+  <div class="panel">
+    <h3>2. 병렬 처리 프로그램 만들기</h3>
+    <p class="small">시작 블록이 두 개예요. 두 프로그램이 <b>동시에</b> 실행돼요.</p>
+    <div class="grid2">
+      <div class="code"><div class="blocks">
+        <div class="blk ev">▶ 시작하기 버튼을 클릭했을 때<span class="cmt" style="color:#fff;opacity:.9">→ 로봇 이동</span></div>
+        <div class="blk hw"><span class="slot">양쪽 ▾</span> 모터를 <span class="slot">앞으로 ▾</span> <span class="slot">1 ▾</span> 의 속도로 계속 회전</div>
+      </div></div>
+      <div class="code"><div class="blocks">
+        <div class="blk ev">▶ 시작하기 버튼을 클릭했을 때<span class="cmt" style="color:#fff;opacity:.9">→ 발광 다이오드 제어</span></div>
+        <div class="blk fl">계속 반복하기</div>
+        <div class="nest">
+          <div class="blk fl">만일 <span class="cond"><span class="slot">IN1 ▾</span> 번 포트의 빛 감지 센서 값 &lt; <span class="num">20</span></span> (이)라면</div>
+          <div class="nest"><div class="blk led"><span class="slot">OUT2 ▾</span> 번 포트의 발광다이오드를 <span class="slot">켜기 ▾</span></div></div>
+          <div class="blk fl">아니면</div>
+          <div class="nest"><div class="blk led"><span class="slot">OUT2 ▾</span> 번 포트의 발광다이오드를 <span class="slot">끄기 ▾</span></div></div>
+        </div>
+      </div></div>
+    </div>
+    <p class="small muted">기준값 <b>20</b>은 예시예요. 로봇이 터널을 통과할 때 오브젝트 목록의 하드웨어 창을 보고, 빛 센서 단자에 나타나는 값을 확인하여 알맞은 값으로 바꿔 입력하세요.</p>
+    <div class="key small"><b>병렬 처리란?</b> 로봇이 앞으로 움직이는 것과 밝기를 측정해 발광 다이오드를 켜거나 끄는 것을 동시에 실행하는 것처럼, 두 가지 이상의 작업을 동시에 처리하는 것을 말해요.</div>
+  </div>
+  <div class="panel">
+    <h3>미리 보기 · 터널 통과 시뮬레이터</h3>
+    <p class="small">▶ 출발을 누르면 로봇이 터널을 지나가요. 하드웨어 창처럼 빛 센서 값을 보면서 <b>기준값</b>을 바꿔 보세요.</p>
+    <div class="simbox"><svg id="tun" viewBox="0 0 800 260" aria-label="터널을 지나는 로봇">
+      <rect x="0" y="0" width="800" height="260" fill="#DCEEFD"/>
+      <circle cx="80" cy="60" r="30" fill="#FFC22E"/>
+      <rect x="0" y="200" width="800" height="60" fill="#8E7356"/>
+      <rect id="tdark" x="300" y="70" width="220" height="130" fill="#1D2A39" opacity=".85"/>
+      <path d="M290 200V64h240v136" fill="none" stroke="#6B4F36" stroke-width="20"/>
+      <text x="410" y="56" text-anchor="middle" font-family="Jua,sans-serif" font-size="20" fill="#6B4F36">터널</text>
+      <g id="tbot">
+        <g id="tglow" opacity="0"><circle cx="40" cy="-58" r="60" fill="#FFF3A0" opacity=".45"/><circle cx="40" cy="-58" r="30" fill="#FFF3A0" opacity=".6"/></g>
+        <rect x="-40" y="-50" width="80" height="34" rx="6" fill="#F2F2F2" stroke="#7A5AD8" stroke-width="3"/>
+        <rect x="-26" y="-78" width="40" height="28" rx="4" fill="#1D2A39"/><circle cx="-6" cy="-64" r="7" fill="#5AE0FF"/>
+        <rect x="26" y="-70" width="16" height="20" rx="3" fill="#FFC22E"/><circle id="tled" cx="40" cy="-58" r="7" fill="#9E8E5A" stroke="#7A6A30" stroke-width="2"/>
+        <rect x="-40" y="-60" width="12" height="10" fill="#E8772E"/>
+        <circle cx="-24" cy="-14" r="14" fill="#1D2A39"/><circle cx="24" cy="-14" r="14" fill="#1D2A39"/>
+      </g>
+    </svg></div>
+    <div class="meter">
+      <div class="wv"><div class="l">IN1 · 빛 센서 값</div><div class="v" id="t-val">-</div></div>
+      <div class="wv"><div class="l">OUT2 · 발광 다이오드</div><div class="v" id="t-led">꺼짐</div></div>
+      <div class="wv"><div class="l">불이 켜졌다 꺼진 횟수</div><div class="v" id="t-flick">0</div></div>
+    </div>
+    <div class="ctrls">
+      <label>기준값 <input type="range" id="t-th" min="5" max="60" value="20"> <b id="t-thv">20</b></label>
+      <label><input type="checkbox" id="t-fix"> 깜빡임 해결 아이디어 켜기 (켤 때 기준값 −5, 끌 때 기준값 +5 사용)</label>
+      <div class="row"><button class="btn leaf" id="t-go">▶ 출발</button><button class="btn ghost" id="t-stop">■ 멈춤</button><button class="btn ghost" id="t-back">처음 위치로</button></div>
+    </div>
+  </div>
+  <div class="panel">
+    <h3>해 보기 · 발광 다이오드가 깜빡거려요!</h3>
+    <p class="small">터널 안에서 발광 다이오드가 켜지면 빛 센서 값이 커져 발광 다이오드가 꺼지고, 센서 값이 작아지면 다시 켜지는 현상이 반복되어 <b>깜빡임</b>이 나타날 수 있어요. 시뮬레이터에서 기준값을 터널 입구 근처 값으로 맞춰 깜빡임을 관찰하고, 어떻게 해결할 수 있을지 생각해 봐요.</p>
+    <textarea data-save="m7-fix" placeholder="예) 빛 센서를 발광 다이오드와 멀리 떨어뜨려요 / 기준값을 더 작게 해요 / 켤 때와 끌 때 기준값을 다르게 해요."></textarea>
+  </div>
+  <div class="panel">
+    <h3>3. 실행하기</h3>
+    <ol class="steps chk-list" data-key="tunnel">
+      <li class="chk"><span>상자로 터널을 만들어요.</span></li>
+      <li class="chk"><span>▶ 시작하기를 눌러 작성한 프로그램을 실행하고 로봇을 터널 안쪽으로 통과시켜요.</span></li>
+      <li class="chk"><span>터널 안에서 발광 다이오드가 켜지고, 터널을 나오면 꺼지는지 확인해요. 터널은 어두울수록 잘 작동해요.</span></li>
+    </ol>
+  </div>
+  <div class="finish" data-m="m7"></div>
+</section>
+
+<!-- M8 -->
+<section class="m" id="m8" data-title="음성 명령" hidden>
+  <div class="m-head"><span class="eyebrow">미션 8 · 자율주행 로봇 만들기 ③ 음성 명령으로 로봇 작동하기</span><h2>“직진!” 말로 움직이는 로봇</h2>
+    <p class="lead">자율주행 로봇이 음성 명령어를 인식하여 움직이도록 프로그래밍해요. 명령어는 <span class="chip">직진</span> <span class="chip">우회전</span> <span class="chip">좌회전</span> <span class="chip">멈춰</span> 네 가지예요.</p></div>
+  <div class="panel">
+    <h3>1. 음성 인식 인공지능 블록 불러오기</h3>
+    <ol class="steps chk-list" data-key="voice">
+      <li class="chk"><span>블록 꾸러미에서 <span class="menu">인공지능</span>을 선택해요.</span></li>
+      <li class="chk"><span><span class="menu">인공지능 블록 불러오기</span> 버튼을 클릭해요.</span></li>
+      <li class="chk"><span>오디오 감지에 있는 <span class="menu">음성 인식</span>을 선택한 후 오른쪽 위에 있는 <span class="menu">불러오기</span> 버튼을 클릭해요.</span></li>
+    </ol>
+  </div>
+  <div class="panel">
+    <h3>2. 음성 명령 프로그램 만들기</h3>
+    <div class="code"><div class="blocks">
+      <div class="blk ev">▶ 시작하기 버튼을 클릭했을 때</div>
+      <div class="blk fl">계속 반복하기</div>
+      <div class="nest">
+        <div class="blk vo"><span class="slot">한국어 ▾</span> 음성 인식하기</div>
+        <div class="blk fl">만일 <span class="cond">음성을 문자로 바꾼 값 = <span class="slot">직진</span></span> (이)라면<span class="cmt" style="color:#fff;opacity:.9">음성을 글자로 바꾸어 명령을 수행해요</span></div>
+        <div class="nest"><div class="blk hw"><span class="slot">양쪽 ▾</span> 모터를 <span class="slot">앞으로 ▾</span> <span class="slot">1 ▾</span> 의 속도로 계속 회전</div></div>
+        <div class="blk fl">만일 <span class="cond">음성을 문자로 바꾼 값 = <span class="slot">우회전</span></span> (이)라면</div>
+        <div class="nest"><div class="blk hw"><span class="slot">오른쪽 ▾</span> 모터를 정지</div><div class="blk hw"><span class="slot">왼쪽 ▾</span> 모터를 <span class="slot">앞으로 ▾</span> <span class="slot">1 ▾</span> 의 속도로 계속 회전<span class="cmt" style="color:#fff;opacity:.9">로봇이 오른쪽으로 방향을 바꿔요</span></div></div>
+        <div class="blk fl">만일 <span class="cond">음성을 문자로 바꾼 값 = <span class="slot">좌회전</span></span> (이)라면</div>
+        <div class="nest"><div class="blk hw"><span class="slot">왼쪽 ▾</span> 모터를 정지</div><div class="blk hw"><span class="slot">오른쪽 ▾</span> 모터를 <span class="slot">앞으로 ▾</span> <span class="slot">1 ▾</span> 의 속도로 계속 회전</div></div>
+        <div class="blk fl">만일 <span class="cond">음성을 문자로 바꾼 값 = <span class="slot">멈춰</span></span> (이)라면</div>
+        <div class="nest"><div class="blk hw"><span class="slot">양쪽 ▾</span> 모터를 정지</div></div>
+        <div class="blk fl"><span class="num">1</span> 초 기다리기</div>
+        <div class="blk hw"><span class="slot">양쪽 ▾</span> 모터를 정지</div>
+      </div>
+    </div></div>
+    <p class="small muted">좌회전하려면 왼쪽 전동기를 멈추고 오른쪽 전동기를 앞으로 회전시켜요. 우회전은 그 반대예요.</p>
+  </div>
+  <div class="panel">
+    <h3>미리 보기 · 음성 명령 시뮬레이터</h3>
+    <p class="small">명령 버튼을 누르거나, 🎤 말하기를 눌러 직접 말해 보세요. (말하기는 마이크가 있고 크롬·엣지 브라우저일 때 쓸 수 있어요.) 프로그램처럼 명령 하나를 1초 동안 실행하고 멈춰요.</p>
+    <div class="simbox" style="background:#EEF2F5"><svg id="vs" viewBox="0 0 800 360" aria-label="음성 명령 로봇 시뮬레이터">
+      <defs><pattern id="tile" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#D3DCE5" stroke-width="2"/></pattern></defs>
+      <rect width="800" height="360" fill="url(#tile)"/>
+      <path id="vtrail" d="" fill="none" stroke="#7A5AD8" stroke-width="3" stroke-dasharray="6 6" opacity=".6"/>
+      <g id="vbot"><rect x="-22" y="-18" width="44" height="36" rx="8" fill="#F2F2F2" stroke="#7A5AD8" stroke-width="3"/><rect x="-26" y="-24" width="20" height="8" rx="3" fill="#1D2A39"/><rect x="-26" y="16" width="20" height="8" rx="3" fill="#1D2A39"/><rect x="6" y="-8" width="12" height="16" rx="3" fill="#1D2A39"/><circle cx="12" cy="0" r="4" fill="#5AE0FF"/><path d="M26 0l-8-6v12z" fill="#7A5AD8"/></g>
+    </svg></div>
+    <div class="cmdbtns">
+      <button class="btn" data-say="직진">직진</button><button class="btn" data-say="우회전">우회전</button><button class="btn" data-say="좌회전">좌회전</button><button class="btn coral" data-say="멈춰">멈춰</button>
+      <button class="btn sun" id="mic">🎤 말하기</button><button class="btn ghost" id="v-reset">처음 위치로</button>
+    </div>
+    <p>음성을 문자로 바꾼 값: <span class="heard" id="heard">-</span></p>
+    <p class="feedback small" id="v-fb" aria-live="polite"></p>
+  </div>
+  <div class="panel">
+    <h3>3. 실행하기</h3>
+    <ol class="steps chk-list" data-key="voice2">
+      <li class="chk"><span>▶ 시작하기를 누르고 컴퓨터 마이크에 또박또박 명령어를 말해요.</span></li>
+      <li class="chk"><span>네 가지 명령어에 따라 로봇이 바르게 움직이는지 확인해요.</span></li>
+      <li class="chk"><span>로봇이 잘못 알아들으면 왜 그런지 이야기해 봐요. (주변 소음, 말하는 속도, 비슷한 발음 등)</span></li>
+    </ol>
+  </div>
+  <div class="finish" data-m="m8"></div>
+</section>
+
+<!-- M9 -->
+<section class="m" id="m9" data-title="신호등 자율주행" hidden>
+  <div class="m-head"><span class="eyebrow">미션 9 · 자율주행 로봇 만들기 ④ 신호등의 색에 따라 움직이기</span><h2>차선을 따라가다 빨간불에 멈추는 로봇</h2>
+    <p class="lead">지난 시간에 만든 <b>신호등 색 분류 모델</b>을 활용하여, 검은색 차선을 따라 이동하면서 신호등의 색에 따라 움직이거나 멈추는 로봇 프로그램을 만들어요. (128쪽 활동지 3)</p></div>
+  <div class="panel">
+    <h3>1. 인공지능 모델 선택하고 적용하기</h3>
+    <ol class="steps chk-list" data-key="model">
+      <li class="chk"><span>블록 꾸러미 <span class="menu">인공지능</span> → <span class="menu">인공지능 모델 학습하기</span>를 눌러요.</span></li>
+      <li class="chk"><span><span class="menu">학습할 모델 선택하기</span> 창에서 <span class="menu">나의 모델</span>을 선택해요.</span></li>
+      <li class="chk"><span>지난 시간에 만든 <b>신호등 색 분류 모델</b>을 선택하고 <span class="menu">학습하기</span>를 눌러요.</span></li>
+      <li class="chk"><span>빨강·노랑·초록 클래스가 잘 분류되는지 확인한 뒤 <span class="menu">적용하기</span>를 눌러요.</span></li>
+      <li class="chk"><span>카메라를 쓰기 위해 <span class="menu">블록 꾸러미</span> → <span class="menu">인공지능</span> → <span class="menu">인공지능 블록 불러오기</span> → <span class="menu">비디오 감지</span> → <span class="menu">사물 인식</span>을 선택한 후 <span class="menu">불러오기</span>를 눌러요.</span></li>
+    </ol>
+  </div>
+  <div class="panel">
+    <h3>2. 검은색 차선을 따라가는 프로그램</h3>
+    <p class="small">로봇이 검은색 차선의 <b>오른쪽 가장자리</b>를 따라 이동해요. 적외선 센서는 흰색 위에서 값이 크고, 검은색 위에서 값이 작아요.</p>
+    <div class="code"><div class="blocks">
+      <div class="blk ev">▶ 시작하기 버튼을 클릭했을 때</div>
+      <div class="blk fl">계속 반복하기</div>
+      <div class="nest">
+        <div class="blk fl">만일 <span class="cond" style="background:#B8336A"><span class="slot">IN2 ▾</span> 번 포트의 적외선 센서에 감지되는 크기 값 <span class="slot">&gt; ▾</span> <span class="num">20</span></span> (이)라면<span class="cmt" style="color:#fff;opacity:.9">차선 밖 흰색 → 왼쪽으로</span></div>
+        <div class="nest"><div class="blk hw"><span class="slot">왼쪽 ▾</span> 모터를 정지</div><div class="blk hw"><span class="slot">오른쪽 ▾</span> 모터를 <span class="slot">앞으로 ▾</span> <span class="slot">2 ▾</span> 의 속도로 <span class="num">0.05</span> 초 동안 회전</div></div>
+        <div class="blk fl">만일 <span class="cond" style="background:#B8336A"><span class="slot">IN2 ▾</span> 번 포트의 적외선 센서에 감지되는 크기 값 <span class="slot">≤ ▾</span> <span class="num">20</span></span> (이)라면<span class="cmt" style="color:#fff;opacity:.9">차선 위 검은색 → 오른쪽으로</span></div>
+        <div class="nest"><div class="blk hw"><span class="slot">오른쪽 ▾</span> 모터를 정지</div><div class="blk hw"><span class="slot">왼쪽 ▾</span> 모터를 <span class="slot">앞으로 ▾</span> <span class="slot">2 ▾</span> 의 속도로 <span class="num">0.05</span> 초 동안 회전</div></div>
+        <div class="blk hw"><span class="slot">양쪽 ▾</span> 모터를 정지</div>
+        <div class="blk fl"><span class="num">0.05</span> 초 기다리기</div>
+      </div>
+    </div></div>
+    <ul class="small" style="margin:0;padding-left:20px">
+      <li>적외선 센서값이 <b>20보다 크면</b>(검은색 차선 밖의 오른쪽으로 벗어난 경우) 오른쪽 모터를 회전시켜서 로봇을 <b>왼쪽</b>으로 이동해요.</li>
+      <li>적외선 센서값이 <b>20보다 작거나 같으면</b> 왼쪽 모터를 회전시켜 로봇을 <b>오른쪽</b>으로 이동해요.</li>
+      <li>0.05초씩 조금씩 이동하면서 차선을 벗어났는지 계속 확인해요.</li>
+    </ul>
+  </div>
+  <div class="panel">
+    <h3>3. ‘빨강’을 인식하면 멈추는 프로그램</h3>
+    <div class="code"><div class="blocks">
+      <div class="blk ev">▶ 시작하기 버튼을 클릭했을 때</div>
+      <div class="blk vi">비디오 화면 <span class="slot">보이기 ▾</span></div>
+      <div class="blk fl">계속 반복하기</div>
+      <div class="nest">
+        <div class="blk ai">비디오 화면을 학습한 모델로 분류 <span class="slot">시작하기 ▾</span><span class="cmt" style="color:#fff;opacity:.9">엔트리 버전에 따라 이 블록이 필요해요</span></div>
+        <div class="blk fl">만일 <span class="cond">분류 결과가 <span class="slot">빨강 ▾</span> 인가?</span> (이)라면</div>
+        <div class="nest"><div class="blk hw"><span class="slot">양쪽 ▾</span> 모터를 정지</div></div>
+      </div>
+    </div></div>
+  </div>
+  <div class="panel">
+    <h3>미리 보기 · 차선 따라가기 시뮬레이터</h3>
+    <p class="small">▶ 출발을 누르면 로봇이 프로그램대로 차선을 따라가요. 카메라 앞에 보여 줄 신호등 색을 바꿔 보세요.</p>
+    <div class="simbox" style="background:#fff"><canvas id="lf" width="800" height="440" aria-label="차선 따라가기 시뮬레이터"></canvas></div>
+    <div class="meter">
+      <div class="wv"><div class="l">IN2 · 적외선 센서 값</div><div class="v" id="lf-ir">-</div></div>
+      <div class="wv"><div class="l">이번 동작</div><div class="v" id="lf-act" style="font-size:19px">-</div></div>
+      <div class="wv"><div class="l">카메라 분류 결과</div><div class="v" id="lf-cls">초록</div></div>
+    </div>
+    <div class="row"><button class="btn leaf" id="lf-go">▶ 출발</button><button class="btn ghost" id="lf-stop">■ 멈춤</button><button class="btn ghost" id="lf-reset">처음 위치로</button>
+      <span class="small muted">신호등:</span><button class="btn coral" data-tl="빨강">🔴 빨강</button><button class="btn leaf" data-tl="초록">🟢 초록</button></div>
+    <p class="feedback small" id="lf-fb" aria-live="polite"></p>
+  </div>
+  <div class="panel">
+    <h3>4. 실행하기</h3>
+    <ol class="steps chk-list" data-key="lane">
+      <li class="chk"><span>흰색 탁자에 검은색 테이프로 차선을 만들어요.</span></li>
+      <li class="chk"><span>차선 옆에 신호등(빨강·초록 그림)을 세워요.</span></li>
+      <li class="chk"><span>▶ 시작하기를 누르고, 로봇이 차선을 따라가다가 빨간 신호를 보면 멈추는지 확인해요.</span></li>
+      <li class="chk"><span>잘 안 되면 적외선 센서 기준값(20)을 하드웨어 창의 값을 보고 바꿔 봐요.</span></li>
+    </ol>
+  </div>
+  <div class="job"><span class="ic">👩‍🔬</span><div><b style="font-family:var(--f-display);font-weight:400;font-size:20px">직업의 세계 · 지능형 로봇 연구 개발자</b><p class="small">인공지능과 로봇 공학을 활용하여 자율적으로 작업하는 로봇을 개발·시험·개선하는 일을 해요.</p></div></div>
+  <div class="finish" data-m="m9"></div>
+</section>
+
+<!-- M10 -->
+<section class="m" id="m10" data-title="평가와 마무리" hidden>
+  <div class="m-head"><span class="eyebrow">미션 10 · 평가하기와 단원 마무리</span><h2>로봇과 인공지능 마무리</h2>
+    <p class="lead">친구들과 함께 로봇이 계획한 대로 작동하였는지 평가하고, 빙고 놀이로 단원을 정리해요.</p></div>
+  <div class="panel">
+    <h3>평가하기</h3>
+    <p class="small">동그라미를 눌러 스스로 평가해요. ●●● 잘함 · ●●○ 보통 · ●○○ 노력 필요</p>
+    <div style="display:grid;gap:8px" id="evals"></div>
+  </div>
+  <div class="panel">
+    <h3>놀이로 정리하기 · O X 빙고 <span class="chip" id="bingo-c">빙고 0줄</span></h3>
+    <p class="small">칸의 문제를 풀어 정답을 맞히면 칸이 초록색으로 칠해져요. 가로, 세로, 대각선 중 한 줄을 모두 칠하면 빙고! 짝과 번갈아 가며 풀어도 좋아요.</p>
+    <div class="bingo" id="bingo"></div>
+    <div class="row"><button class="btn ghost" id="bingo-re">다시 하기</button></div>
+  </div>
+  <div class="panel">
+    <h3>생각이 자라는 창의 교실 · 스마트 장갑을 끼면 나도 피아니스트</h3>
+    <p class="small">악기 연주처럼 정교한 손 기술은 많은 연습이 필요해요. 최근 개발된 적응형 스마트 장갑은 전문 연주자가 장갑을 끼고 피아노를 연주할 때의 촉각 기억을 <b>데이터로 저장</b>하고, 이 데이터를 활용해 피아노를 배우는 학생을 도와줘요.</p>
+    <label class="small" style="display:grid;gap:4px">스마트 장갑을 이용해 내가 배우고 싶은 것과 그 이유는?<textarea data-save="m10-glove" placeholder="예) 그림 그리기를 배우고 싶어요. 화가의 붓 터치를 느껴 보고 싶어서요."></textarea></label>
+  </div>
+  <div class="cert" data-lesson="2"></div>
+  <div class="finish" data-m="m10"></div>
+</section>
+
+</main>
+
+<script>
+(function(){
+var store={get:function(k,d){try{var v=localStorage.getItem('ailab2:'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},
+           set:function(k,v){try{localStorage.setItem('ailab2:'+k,JSON.stringify(v))}catch(e){}}};
+function $(s,r){return (r||document).querySelector(s)}
+function $$(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function el(tag,attrs,html){var e=document.createElement(tag);if(attrs)for(var k in attrs){if(k==='class')e.className=attrs[k];else e.setAttribute(k,attrs[k])}if(html!=null)e.innerHTML=html;return e}
+var TOTAL=10;
+
+/* ---------- navigation ---------- */
+var sections=$$('section.m');
+var plan={a:['m1','m2','m3','m4','m5'],b:['m6','m7','m8','m9','m10']};
+var times={m1:'5분',m2:'10분',m3:'8분',m4:'10분',m5:'7분',m6:'8분',m7:'10분',m8:'8분',m9:'10분',m10:'4분'};
+var done=store.get('done',{});
+var tabs=$('#tabs');
+sections.forEach(function(s,i){
+  if(i===1){tabs.appendChild(el('span',{class:'tab sep'},'1차시'))}
+  if(i===6){tabs.appendChild(el('span',{class:'tab sep'},'2차시'))}
+  tabs.appendChild(el('button',{class:'tab','data-go':s.id},(i?'<span class="n">'+i+'</span>':'<span class="n">⌂</span>')+s.dataset.title));
+});
+['plan1','plan2'].forEach(function(p,pi){
+  var ol=$('#'+p);(pi?plan.b:plan.a).forEach(function(id){
+    var s=$('#'+id);ol.appendChild(el('li',null,'<span class="chip">'+id.slice(1)+'</span><button data-go="'+id+'">'+s.dataset.title+'</button><span class="t">'+times[id]+'</span>'))});
+});
+var onShow={};
+function show(id){
+  if(!$('#'+id))id='m0';
+  sections.forEach(function(s){s.hidden=s.id!==id});
+  $$('.tab[data-go]').forEach(function(t){t.setAttribute('aria-current',t.dataset.go===id?'true':'false')});
+  var cur=$('.tab[aria-current="true"]');if(cur&&cur.scrollIntoView)cur.scrollIntoView({block:'nearest',inline:'center'});
+  window.scrollTo(0,0);store.set('tab',id);
+  try{history.replaceState(null,'','#'+id)}catch(e){}
+  if(onShow[id])onShow[id]();
+}
+document.addEventListener('click',function(e){var g=e.target.closest('[data-go]');if(g){show(g.dataset.go)}});
+function refreshDone(){
+  var n=0;for(var k in done)if(done[k])n++;
+  $('#stars').textContent='★ '+n+' / '+TOTAL+' 미션';
+  $$('.tab[data-go]').forEach(function(t){t.classList.toggle('done',!!done[t.dataset.go])});
+  $$('.finish').forEach(function(f){var b=$('.stamp',f);if(b){b.setAttribute('aria-pressed',done[f.dataset.m]?'true':'false');b.textContent=done[f.dataset.m]?'★ 미션 완료!':'☆ 미션 완료 도장 찍기'}});
+}
+$$('.finish').forEach(function(f){
+  var id=f.dataset.m;var idx=+id.slice(1);
+  var stamp=el('button',{class:'stamp','aria-pressed':'false'},'');
+  stamp.addEventListener('click',function(){done[id]=!done[id];store.set('done',done);refreshDone()});
+  var nav=el('div',{class:'navbtns'});
+  nav.appendChild(el('button',{class:'btn ghost','data-go':'m'+(idx-1)},'← 이전'));
+  if(idx<TOTAL)nav.appendChild(el('button',{class:'btn','data-go':'m'+(idx+1)},'다음 미션 →'));
+  else nav.appendChild(el('button',{class:'btn','data-go':'m0'},'처음으로'));
+  f.appendChild(stamp);f.appendChild(nav);
+});
+refreshDone();
+
+/* saved text fields */
+$$('[data-save]').forEach(function(t){var k='txt:'+t.dataset.save;t.value=store.get(k,'');t.addEventListener('input',function(){store.set(k,t.value)})});
+
+/* checklists */
+$$('.chk-list').forEach(function(ol){
+  var key='chk:'+ol.dataset.key,st=store.get(key,[]);
+  $$('li.chk',ol).forEach(function(li,i){li.tabIndex=0;li.setAttribute('role','checkbox');
+    function upd(){li.classList.toggle('on',!!st[i]);li.setAttribute('aria-checked',st[i]?'true':'false')}
+    function tog(){st[i]=!st[i];store.set(key,st);upd()}
+    li.addEventListener('click',function(e){if(e.target.closest('a'))return;tog()});li.addEventListener('keydown',function(e){if(e.key===' '||e.key==='Enter'){e.preventDefault();tog()}});upd()});
+});
+
+/* option-row helper: rows of [text, options[], answerIndex, explanation] */
+function optRows(box,rows,opts){
+  rows.forEach(function(r){
+    var d=el('div',{class:'qrow'},'<div><span>'+r[0]+'</span><p class="feedback small" style="min-height:0"></p></div><div class="opts"></div>');
+    var o=$('.opts',d),f=$('.feedback',d);
+    (r[1]||opts).forEach(function(op,oi){var b=el('button',null,op);b.addEventListener('click',function(){
+      $$('button',o).forEach(function(x){x.classList.remove('right','wrong')});var ok=oi===r[2];b.classList.add(ok?'right':'wrong');
+      f.className='feedback small '+(ok?'ok':'no');f.textContent=ok?'정답! '+(r[3]||''):'다시 생각해 봐요.'});o.appendChild(b)});
+    box.appendChild(d);
+  });
+}
+
+/* sorting helper */
+function sorter(poolSel,bucketSel,fbSel,items,msgs){
+  var pool=$(poolSel),sel=null,left=items.length;
+  shuffle(items).forEach(function(it){
+    var b=el('button',{class:'item'},it.t);b._it=it;
+    b.addEventListener('click',function(){if(b.classList.contains('ok'))return;$$('.item',pool).forEach(function(x){x.classList.remove('sel')});sel=b;b.classList.add('sel');$$(bucketSel+' .bucket').forEach(function(k){k.classList.add('ready')})});
+    pool.appendChild(b);
+  });
+  $$(bucketSel+' .bucket').forEach(function(k){k.addEventListener('click',function(){
+    var fb=$(fbSel);if(!sel){fb.className='feedback';fb.textContent='먼저 위의 카드를 하나 골라 주세요.';return}
+    $$(bucketSel+' .bucket').forEach(function(x){x.classList.remove('ready')});
+    if(sel._it.b===k.dataset.b){$('.got',k).appendChild(el('span',{class:'item ok'},sel._it.t));sel.remove();left--;fb.className='feedback ok';fb.textContent=left?'맞아요! '+(sel._it.why||''):msgs.done}
+    else{fb.className='feedback no';fb.textContent='다시 생각해 봐요. '+(sel._it.hint||'');sel.classList.remove('sel')}
+    sel=null;
+  })});
+}
+
+/* ---------- M1 cybathlon ---------- */
+var CY=[['🦿','로봇 의족 경기','로봇 의족을 이용해 장애물을 통과하고 있어요.','다리가 불편한 사람이 로봇 의족을 달고 계단, 경사로 같은 장애물을 스스로 걸어서 지나가요. 로봇이 다리 역할을 대신해 줘요.'],
+        ['🚴','전기 자극 자전거 경기','마비된 근육에 전기 자극을 주어 자전거를 움직여요.','움직이지 않는 다리 근육에 전기 자극을 주어 근육이 움직이게 하고, 그 힘으로 자전거 페달을 돌려 경주해요.'],
+        ['🧠','뇌파 아바타 경주','뇌파를 이용해 컴퓨터 안의 아바타로 자동차 경주를 해요.','몸을 움직이기 어려운 사람이 머리에 쓴 장치로 생각(뇌파)을 읽어 컴퓨터 속 아바타 자동차를 조종해요.']];
+var cyOpen=0;
+CY.forEach(function(c){
+  var b=el('button',{class:'flip'},'<span style="font-size:40px;line-height:1">'+c[0]+'</span><span class="q">'+c[1]+'</span><span class="small">'+c[2]+'</span><span class="a" hidden>'+c[3]+'</span><span class="hint">눌러서 로봇이 어떻게 돕는지 보기</span>');
+  b.addEventListener('click',function(){if(b.classList.contains('open'))return;b.classList.add('open');$('.a',b).hidden=false;$('.hint',b).hidden=true;cyOpen++;
+    $('#cyb-c').textContent=cyOpen<CY.length?(cyOpen+' / '+CY.length+' 경기를 살펴봤어요.'):'모든 경기를 살펴봤어요! 로봇은 신체 일부가 불편한 사람들이 다시 걷고, 움직이고, 도전할 수 있게 도와줘요.'});
+  $('#cyb').appendChild(b);
+});
+
+/* ---------- M2 robot parts ---------- */
+var PARTS=[['sense','감지 장치','사람의 눈, 귀, 피부와 같은 감각 기관의 역할을 해요.','카메라, 마이크, 빛 센서, 적외선 센서처럼 주변 환경을 알아채요.'],
+  ['ctrl','제어 장치','사람의 두뇌와 같은 역할을 해요.','감지 장치가 보낸 정보로 판단하고, 다른 장치에 명령을 내려요.'],
+  ['power','전원 장치','사람이 섭취한 음식처럼 에너지를 공급하는 역할을 해요.','배터리처럼 로봇이 움직일 힘(전기)을 줘요.'],
+  ['drive','구동 장치','사람의 팔과 다리처럼 로봇을 움직이는 역할을 해요.','전동기(모터), 바퀴, 관절 등이 명령에 따라 움직여요.'],
+  ['body','몸체','로봇의 뼈대와 겉모습이에요.','여러 장치를 담고 보호하며 하나로 연결해요.']];
+PARTS.forEach(function(p){var b=el('button',{'aria-pressed':'false'},p[1]);b.addEventListener('click',function(){
+  $$('#pbtns button').forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false')});
+  $$('.partsvg .hl').forEach(function(h){h.classList.toggle('on',h.dataset.p===p[0])});
+  $('#pinfo').innerHTML='<b>'+p[1]+'</b><span>'+p[2]+'</span><span class="small muted">'+p[3]+'</span>'});$('#pbtns').appendChild(b)});
+sorter('#pool2','#buckets2','#sort2-fb',[
+  {t:'📷 카메라',b:'s'},{t:'🎤 마이크',b:'s'},{t:'💡 빛 센서',b:'s'},{t:'🔴 적외선 센서',b:'s'},
+  {t:'🧩 제어 장치(컴퓨터 칩)',b:'c'},{t:'🔋 배터리',b:'p'},{t:'🔌 충전기',b:'p',hint:'로봇에 에너지를 주는 것은 무엇일까요?'},
+  {t:'⚙️ 전동기(모터)',b:'d'},{t:'🛞 바퀴',b:'d'},{t:'🦾 로봇 팔 관절',b:'d'}
+],{done:'모두 분류했어요! 감지 → 제어 → 구동, 그리고 전원 장치가 힘을 줘요.'});
+
+/* ---------- M3 grid game ---------- */
+var G={n:6,ob:{},start:[5,0],goal:[0,5],prog:[],running:false,bot:null};
+var DIRS=[[-1,0],[0,1],[1,0],[0,-1]],ARW=['↑','→','↓','←'],CMDN={F:'앞으로',L:'왼쪽 돌기',R:'오른쪽 돌기'};
+function solvable(){var seen={},q=[G.start],k=function(p){return p[0]+','+p[1]};seen[k(G.start)]=1;
+  while(q.length){var p=q.shift();if(p[0]===G.goal[0]&&p[1]===G.goal[1])return true;DIRS.forEach(function(d){var r=p[0]+d[0],c=p[1]+d[1];if(r<0||c<0||r>=G.n||c>=G.n||G.ob[r+','+c]||seen[r+','+c])return;seen[r+','+c]=1;q.push([r,c])})}return false}
+function newRoom(){
+  do{G.ob={};var cnt=0;while(cnt<8){var r=Math.floor(Math.random()*6),c=Math.floor(Math.random()*6);var key=r+','+c;
+    if(G.ob[key]||(r===5&&c<=1)||(r===0&&c===5))continue;G.ob[key]=1;cnt++}}while(!solvable());
+  G.prog=[];resetBot();drawProg();say3('');
+}
+function resetBot(){G.bot={r:G.start[0],c:G.start[1],d:1};drawRoom()}
+function drawRoom(hit){
+  var room=$('#room');room.innerHTML='';
+  for(var r=0;r<G.n;r++)for(var c=0;c<G.n;c++){var cell=el('div');var key=r+','+c;
+    if(G.ob[key]){cell.className='ob';cell.textContent='🪑'}
+    if(r===G.goal[0]&&c===G.goal[1]){cell.className='gl';cell.textContent='⭐'}
+    if(G.bot&&r===G.bot.r&&c===G.bot.c){cell.innerHTML='<span class="bot">'+(hit?'💥':'🤖')+'</span><i style="position:absolute;right:3px;top:0;font-size:15px;font-style:normal;color:var(--sky);font-family:var(--f-display)">'+ARW[G.bot.d]+'</i>'}
+    room.appendChild(cell)}
+}
+function drawProg(ri){var p=$('#prog');p.innerHTML=G.prog.length?'':'<span style="background:none;color:var(--muted)">명령 버튼을 눌러 프로그램을 만들어요</span>';
+  G.prog.forEach(function(c,i){p.appendChild(el('span',{class:i===ri?'run':''},(i+1)+'. '+CMDN[c]))})}
+function say3(t,c){var f=$('#g-fb');f.textContent=t;f.className='feedback '+(c||'')}
+$$('[data-cmd]').forEach(function(b){b.addEventListener('click',function(){if(G.running)return;if(G.prog.length>=30){say3('명령은 30개까지 넣을 수 있어요.');return}G.prog.push(b.dataset.cmd);drawProg()})});
+$('#g-undo').addEventListener('click',function(){if(G.running)return;G.prog.pop();drawProg()});
+$('#g-clear').addEventListener('click',function(){if(G.running)return;G.prog=[];drawProg();resetBot();say3('')});
+$('#g-new').addEventListener('click',function(){if(G.running)return;newRoom()});
+$('#g-run').addEventListener('click',function(){
+  if(G.running||!G.prog.length){if(!G.prog.length)say3('먼저 명령을 넣어 주세요.','no');return}
+  G.running=true;resetBot();say3('로봇이 움직이는 중…');var i=0;
+  (function step(){
+    if(i>=G.prog.length){G.running=false;drawProg();
+      if(G.bot.r===G.goal[0]&&G.bot.c===G.goal[1])say3('성공! 프로그래머의 명령대로 로봇이 목표에 도착했어요. 🎉','ok');
+      else say3('목표에 아직 못 갔어요. 명령을 더 넣거나 고쳐 보세요.','no');return}
+    var c=G.prog[i];drawProg(i);
+    if(c==='L')G.bot.d=(G.bot.d+3)%4;else if(c==='R')G.bot.d=(G.bot.d+1)%4;
+    else{var nr=G.bot.r+DIRS[G.bot.d][0],nc=G.bot.c+DIRS[G.bot.d][1];
+      if(nr<0||nc<0||nr>=G.n||nc>=G.n||G.ob[nr+','+nc]){drawRoom(true);G.running=false;say3('쿵! '+(i+1)+'번째 명령에서 '+(G.ob[nr+','+nc]?'책상':'벽')+'에 부딪혔어요. 실제 놀이에서도 부딪히지 않게 조심해요!','no');return}
+      G.bot.r=nr;G.bot.c=nc}
+    drawRoom();i++;setTimeout(step,420);
+  })();
+});
+newRoom();
+optRows($('#role-q'),[
+  ['👂 친구가 약속한 신호(어깨 톡톡)를 느끼거나 들어요.',null,0,'몸의 감각으로 신호를 알아채는 것은 감지 장치예요.'],
+  ['🧠 신호가 무슨 뜻인지 생각하고 어느 쪽으로 갈지 정해요.',null,1,'판단하고 명령을 내리는 것은 제어 장치예요.'],
+  ['🦵 다리로 한 걸음 앞으로 움직여요.',null,3,'몸을 움직이는 팔과 다리는 구동 장치예요.'],
+  ['🍚 점심을 먹고 힘을 내서 활동해요.',null,2,'음식처럼 에너지를 주는 것은 전원 장치예요.'],
+  ['👀 앞에 책상이 있는 것을 눈으로 보고 알아채요.',null,0,'눈은 감지 장치예요.']
+],['감지','제어','전원','구동']);
+
+/* ---------- M4 robots ---------- */
+sorter('#pool4','#buckets4','#sort4-fb',[
+  {t:'📚 교육용 로봇',b:'p',why:'학생과 상호작용하며 학습을 도와요.'},{t:'🐕 반려 로봇',b:'p',why:'사람과 상호작용하며 정서적 안정을 느끼게 해 줘요.'},{t:'🧹 청소 로봇',b:'p',why:'집 안 구석구석을 청소해 줘요.'},
+  {t:'🏥 의료용 로봇',b:'e',why:'환자의 진단과 치료, 수술 등을 해요.'},{t:'🚒 화재 진압 로봇',b:'e',why:'화재를 감지하고 불을 꺼요.'},{t:'🌱 스마트팜 로봇',b:'e',why:'작물의 상태에 따라 물, 영양제, 농약 등을 주어 작물을 관리하고 수확해요.'},
+  {t:'🚀 우주 탐사 로봇',b:'e',why:'우주 공간에서 탐사, 조사, 실험 등을 해요.'},{t:'🌊 해저 탐사 로봇',b:'e',why:'깊은 바닷속에서 자원과 생태계를 탐사해요.'},
+  {t:'📦 물류 로봇',b:'i',why:'창고에서 물건을 찾아 나르고 정리해요.'},{t:'🏭 공장 자동화 로봇',b:'i',why:'공장에서 조립, 용접, 가공 등의 일을 해요.'}
+],{done:'모두 분류했어요! 로봇은 우리 생활, 전문 분야, 산업 현장 곳곳에서 일하고 있어요.'});
+var FIRE=[['① 감지 장치','빛, 온도, 소리 등의 주변 환경을 감지하여 제어 장치로 신호를 보내요.'],['② 제어 장치','감지 장치에서 보내온 신호와 관련 데이터를 분석하여 불이 난 위치를 정확하게 탐지해요.'],['③ 구동 장치','제어 장치의 명령에 따라 화재가 일어난 곳에 물이나 소화제를 뿌려요.']];
+var fireN=0;
+function drawFire(){var box=$('#fire');box.innerHTML='';fireN=0;$('#fire-fb').textContent='';
+  shuffle(FIRE.map(function(f,i){return i})).forEach(function(i){var f=FIRE[i];
+    var b=el('button',{class:'ordc'},'<span class="no">몇 번째일까?</span><b>'+f[0].slice(2)+'</b><span class="small">'+f[1]+'</span>');
+    b.addEventListener('click',function(){if(b.classList.contains('ok'))return;var fb=$('#fire-fb');
+      if(i===fireN){b.classList.remove('bad');b.classList.add('ok');$('.no',b).textContent=(i+1)+'번째';fireN++;fb.className='feedback ok';fb.textContent=fireN<3?'맞아요! 다음은?':'완벽해요! 감지 → 제어 → 구동 순서로 작동해요. 로봇 대부분이 이렇게 움직여요.'}
+      else{b.classList.add('bad');setTimeout(function(){b.classList.remove('bad')},600);fb.className='feedback no';fb.textContent='순서를 다시 생각해 봐요. 로봇은 먼저 무엇을 해야 할까요?'}});
+    box.appendChild(b)})}
+drawFire();$('#fire-re').addEventListener('click',drawFire);
+
+/* ---------- M5 ---------- */
+optRows($('#serve'),[
+  ['카메라와 센서를 이용하여 주변 상황을 인식해요.',null,0,'상황 인식 기술이에요.'],
+  ['카메라와 센서를 이용하여 위치를 파악하고 설정된 경로를 따라 이동해요.',null,1,'위치 인식 기술이에요.'],
+  ['음식을 운반할 때 음식이 쏟아지지 않도록 속도를 조절하고 수평을 유지해요.',null,2,'동작 제어 기술이에요.'],
+  ['주어진 경로를 따라 장애물을 피해서 목적지에 도착해요.',null,3,'자율 이동 기술이에요.']
+],['상황 인식','위치 인식','동작 제어','자율 이동']);
+
+/* ---------- M6 parts & ports ---------- */
+var PL=['10칸 블록 2개','6×10 블록 1개','굽은 블록 2개','2×8 블록 2개','2×6 블록 2개','회전 핀 4개','고정 핀 12개','막힘 축 2개','작은 바퀴 2개','큰 바퀴 2개','카메라','적외선 센서','빛 센서','발광 다이오드','제어 장치','전동기 2개'];
+var pst=store.get('parts',[]);
+function drawParts(){var box=$('#parts');box.innerHTML='';var n=0;PL.forEach(function(p,i){if(pst[i])n++;var b=el('button',{class:pst[i]?'on':''},p);b.addEventListener('click',function(){pst[i]=!pst[i];store.set('parts',pst);drawParts()});box.appendChild(b)});
+  $('#parts-c').textContent=n+' / '+PL.length+(n===PL.length?' 모두 준비!':'')}
+drawParts();
+var PORTS=[['IN1',40,14],['IN2',140,14],['OUT1',240,14],['OUT2',340,14],['L-Motor',40,282],['IN3',140,282],['OUT3',240,282],['R-Motor',340,282]];
+var DEV=[['💡 빛 센서','IN1'],['🔴 적외선 센서','IN2'],['🟡 발광 다이오드','OUT2'],['⚙️ 왼쪽 전동기','L-Motor'],['⚙️ 오른쪽 전동기','R-Motor']];
+var NS='http://www.w3.org/2000/svg',bd=$('#board2'),psel=null,pdone={};
+PORTS.forEach(function(p){
+  var g=document.createElementNS(NS,'g');g.setAttribute('class','port');g.setAttribute('data-port',p[0]);g.setAttribute('tabindex','0');g.setAttribute('role','button');g.setAttribute('aria-label',p[0]+' 단자');
+  var cx=p[1]+40,top=p[2]<100;
+  g.innerHTML='<line x1="'+cx+'" y1="'+(top?p[2]+34:p[2])+'" x2="'+Math.min(Math.max(cx,160),300)+'" y2="'+(top?60:270)+'" stroke="#7A8B9C" stroke-width="3"/><rect x="'+p[1]+'" y="'+p[2]+'" width="80" height="34" rx="10"/><text x="'+cx+'" y="'+(p[2]+23)+'" text-anchor="middle">'+p[0]+'</text>';
+  function pick(){var fb=$('#port-fb');if(!psel){fb.className='feedback';fb.textContent='먼저 왼쪽에서 부품을 골라 주세요.';return}
+    $$('.port',bd).forEach(function(x){x.classList.remove('ready')});
+    if(psel._d[1]===p[0]){pdone[p[0]]=1;g.classList.add('ok');psel.classList.remove('sel');psel.classList.add('ok');$('.to',psel).textContent='→ '+p[0];
+      var left=DEV.filter(function(d){return !pdone[d[1]]}).length;fb.className='feedback ok';fb.textContent=left?'딩동댕! '+psel._d[0].slice(2)+'는 '+p[0]+' 단자예요.':'모두 연결했어요! 이제 실제 로봇에도 똑같이 꽂아요.'}
+    else{fb.className='feedback no';fb.textContent='그 단자가 아니에요. '+(psel._d[1].indexOf('Motor')>0?'전동기는 L-Motor, R-Motor 단자에 꽂아요.':psel._d[0].indexOf('발광')>=0?'발광 다이오드는 빛을 내보내니까 OUT(출력) 단자예요.':'센서는 값을 받아들이니까 IN(입력) 단자예요.');psel.classList.remove('sel')}
+    psel=null}
+  g.addEventListener('click',pick);g.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();pick()}});
+  bd.appendChild(g);
+});
+DEV.forEach(function(d){var b=el('button',null,'<span>'+d[0]+'</span><span class="to"></span>');b._d=d;b.addEventListener('click',function(){if(b.classList.contains('ok'))return;$$('#devs button').forEach(function(x){x.classList.remove('sel')});psel=b;b.classList.add('sel');$$('.port',bd).forEach(function(x){if(!x.classList.contains('ok'))x.classList.add('ready')})});$('#devs').appendChild(b)});
+
+/* ---------- M7 tunnel sim ---------- */
+var T={x:60,run:false,led:false,val:0,flick:0,cnt:0};
+function base(x){var a=300,b=520,r=50;if(x<a-r||x>b+r)return 62;if(x>=a+10&&x<=b-10)return 8;
+  var d=x<a+10?(a+10-x)/(r+10):(x-(b-10))/(r+10);return 8+54*Math.min(1,Math.max(0,d))}
+function tunnelStep(){
+  if(T.run){T.x+=1.5;if(T.x>770){T.x=770;T.run=false}}
+  T.val=base(T.x)+(T.led?10:0)+(Math.random()*3-1.5);
+  T.cnt++;if(T.cnt%5===0){var th=+$('#t-th').value,fix=$('#t-fix').checked,nl=T.led;
+    if(fix){if(T.val<th-5)nl=true;else if(T.val>th+5)nl=false}else nl=T.val<th;
+    if(nl!==T.led){if(nl)T.flick++;T.led=nl}}
+  $('#tbot').setAttribute('transform','translate('+T.x.toFixed(1)+',200)');
+  $('#tglow').setAttribute('opacity',T.led?'1':'0');$('#tled').setAttribute('fill',T.led?'#FFF16A':'#9E8E5A');
+  if(T.cnt%4===0){$('#t-val').textContent=Math.round(T.val);$('#t-led').textContent=T.led?'💡 켜짐':'꺼짐';$('#t-flick').textContent=T.flick}
+}
+$('#t-th').addEventListener('input',function(){$('#t-thv').textContent=this.value});
+$('#t-go').addEventListener('click',function(){if(T.x>=770){T.x=60;T.flick=0}T.run=true});
+$('#t-stop').addEventListener('click',function(){T.run=false});
+$('#t-back').addEventListener('click',function(){T.run=false;T.x=60;T.flick=0;T.led=false});
+
+/* ---------- M8 voice sim ---------- */
+var V={x:400,y:250,th:-Math.PI/2,mode:null,until:0,trail:[]};
+var VB=60,VS=1.6;
+function vDraw(){$('#vbot').setAttribute('transform','translate('+V.x.toFixed(1)+','+V.y.toFixed(1)+') rotate('+(V.th*180/Math.PI).toFixed(1)+')');
+  $('#vtrail').setAttribute('d',V.trail.length?'M'+V.trail.map(function(p){return p[0].toFixed(0)+' '+p[1].toFixed(0)}).join('L'):'')}
+function vReset(){V.x=400;V.y=250;V.th=-Math.PI/2;V.mode=null;V.trail=[[V.x,V.y]];vDraw();$('#heard').textContent='-';$('#v-fb').textContent=''}
+function vStep(now){
+  if(V.mode&&now>V.until){V.mode=null;var f=$('#v-fb');f.className='feedback small';f.textContent='1초 기다리기 → 양쪽 모터를 정지. 다음 명령을 기다려요.'}
+  if(!V.mode||V.mode==='멈춰')return;
+  var vl=0,vr=0;if(V.mode==='직진'){vl=vr=VS}else if(V.mode==='우회전'){vl=VS}else if(V.mode==='좌회전'){vr=VS}
+  var v=(vl+vr)/2;V.th+=(vl-vr)/VB;var nx=V.x+v*Math.cos(V.th),ny=V.y+v*Math.sin(V.th);
+  if(nx<26||ny<26||nx>774||ny>334){V.mode=null;var f2=$('#v-fb');f2.className='feedback small no';f2.textContent='벽에 닿을 것 같아서 멈췄어요. 방향을 바꿔 보세요.';vDraw();return}
+  V.x=nx;V.y=ny;var lp=V.trail[V.trail.length-1];if(!lp||Math.hypot(lp[0]-V.x,lp[1]-V.y)>4){V.trail.push([V.x,V.y]);if(V.trail.length>600)V.trail.shift()}
+  vDraw();
+}
+function vCommand(text){
+  var t=(text||'').replace(/[\s.,!?]/g,'');$('#heard').textContent=text||'(못 알아들었어요)';
+  var cmd=t.indexOf('우회전')>=0?'우회전':t.indexOf('좌회전')>=0?'좌회전':t.indexOf('직진')>=0?'직진':(t.indexOf('멈춰')>=0||t.indexOf('멈춤')>=0)?'멈춰':null;
+  var f=$('#v-fb');
+  if(!cmd){V.mode=null;f.className='feedback small no';f.textContent='“직진, 우회전, 좌회전, 멈춰”가 아니라서 어떤 만일 블록에도 해당하지 않아요.';return}
+  V.mode=cmd;V.until=performance.now()+1000;f.className='feedback small ok';
+  f.textContent={직진:'양쪽 모터를 앞으로 1의 속도로 회전!',우회전:'오른쪽 모터 정지, 왼쪽 모터만 앞으로 → 오른쪽으로 돌아요.',좌회전:'왼쪽 모터 정지, 오른쪽 모터만 앞으로 → 왼쪽으로 돌아요.',멈춰:'양쪽 모터를 정지!'}[cmd];
+}
+$$('[data-say]').forEach(function(b){b.addEventListener('click',function(){vCommand(b.dataset.say)})});
+$('#v-reset').addEventListener('click',vReset);
+var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+$('#mic').addEventListener('click',function(){
+  var f=$('#v-fb');
+  if(!SR){f.className='feedback small no';f.textContent='이 브라우저에서는 말하기를 쓸 수 없어요. 크롬이나 엣지에서 열거나, 명령 버튼을 눌러 주세요.';return}
+  try{var r=new SR();r.lang='ko-KR';r.interimResults=false;r.maxAlternatives=1;
+    r.onresult=function(e){vCommand(e.results[0][0].transcript)};
+    r.onerror=function(e){f.className='feedback small no';f.textContent=e.error==='not-allowed'?'마이크 사용이 허용되지 않았어요. 주소창의 마이크 권한을 확인하거나 명령 버튼을 눌러 주세요.':'잘 듣지 못했어요. 다시 눌러 또박또박 말해 보세요.'};
+    r.onend=function(){$('#mic').textContent='🎤 말하기'};
+    r.start();$('#mic').textContent='🎤 듣는 중…';f.className='feedback small';f.textContent='명령어를 말해 보세요.'}
+  catch(e){f.className='feedback small no';f.textContent='말하기를 시작하지 못했어요. 명령 버튼을 눌러 주세요.'}
+});
+vReset();
+
+/* ---------- M9 line follower ---------- */
+var cv=$('#lf'),cx=cv.getContext('2d'),W=800,H=440;
+var trk=document.createElement('canvas');trk.width=W;trk.height=H;var tx=trk.getContext('2d');
+function rrp(x,a,b,w,h,r){x.beginPath();x.moveTo(a+r,b);x.arcTo(a+w,b,a+w,b+h,r);x.arcTo(a+w,b+h,a,b+h,r);x.arcTo(a,b+h,a,b,r);x.arcTo(a,b,a+w,b,r);x.closePath()}
+tx.fillStyle='#FFFFFF';tx.fillRect(0,0,W,H);tx.strokeStyle='#1A1A1A';tx.lineWidth=30;tx.lineJoin='round';
+tx.beginPath();tx.moveTo(110,90);tx.lineTo(560,90);tx.arcTo(700,90,700,200,110);tx.lineTo(700,250);tx.arcTo(700,360,560,360,110);tx.lineTo(380,360);tx.bezierCurveTo(300,360,320,250,240,250);tx.arcTo(100,250,100,180,90);tx.arcTo(100,90,200,90,80);tx.closePath();tx.stroke();
+var TD=tx.getImageData(0,0,W,H).data;
+var L={x:300,y:110,th:0,run:false,light:'초록',ir:0,acc:0};
+function irAt(x,y){x=Math.round(x);y=Math.round(y);if(x<0||y<0||x>=W||y>=H)return 62;var i=(y*W+x)*4;return 6+(TD[i]/255)*56}
+function lfReset(){L.x=300;L.y=110;L.th=0;L.run=false;lfDraw()}
+function lfStep(){
+  var sx=L.x+16*Math.cos(L.th),sy=L.y+16*Math.sin(L.th);
+  L.ir=irAt(sx,sy)+(Math.random()*2-1);
+  if(!L.run)return;
+  if(L.light==='빨강'){$('#lf-act').textContent='🔴 양쪽 모터 정지';return}
+  var vl,vr,s=2.6;
+  if(L.ir>20){vl=0;vr=s;$('#lf-act').textContent='↰ 왼쪽으로 (오른쪽 모터)'}else{vl=s;vr=0;$('#lf-act').textContent='↱ 오른쪽으로 (왼쪽 모터)'}
+  L.th+=(vl-vr)/26;var v=(vl+vr)/2;L.x+=v*Math.cos(L.th);L.y+=v*Math.sin(L.th);
+  if(L.x<10||L.y<10||L.x>W-10||L.y>H-10){L.run=false;var f=$('#lf-fb');f.className='feedback small no';f.textContent='차선을 놓쳤어요. 처음 위치로 돌아가 다시 출발해 보세요.'}
+}
+function lfDraw(){
+  cx.drawImage(trk,0,0);
+  // traffic light
+  cx.fillStyle='#3C4A5C';cx.fillRect(398,170,8,80);rrp(cx,372,118,60,56,10);cx.fill();
+  cx.fillStyle=L.light==='빨강'?'#FF3B30':'#4A2A2A';cx.beginPath();cx.arc(388,146,14,0,7);cx.fill();
+  cx.fillStyle=L.light==='초록'?'#2EE06A':'#2A4A34';cx.beginPath();cx.arc(416,146,14,0,7);cx.fill();
+  cx.font='18px Jua, sans-serif';cx.fillStyle='#56687B';cx.textAlign='center';cx.fillText('신호등',402,270);
+  // robot
+  cx.save();cx.translate(L.x,L.y);cx.rotate(L.th);
+  cx.fillStyle='#1D2A39';cx.fillRect(-12,-17,18,6);cx.fillRect(-12,11,18,6);
+  cx.fillStyle='rgba(242,242,242,.92)';cx.strokeStyle='#7A5AD8';cx.lineWidth=3;rrp(cx,-16,-12,32,24,6);cx.fill();cx.stroke();
+  cx.fillStyle='#1D2A39';cx.fillRect(4,-6,8,12);
+  cx.fillStyle='#F0584A';cx.beginPath();cx.arc(16,0,4,0,7);cx.fill();
+  cx.restore();
+}
+$('#lf-go').addEventListener('click',function(){L.run=true;$('#lf-fb').textContent=''});
+$('#lf-stop').addEventListener('click',function(){L.run=false;$('#lf-act').textContent='■ 멈춤'});
+$('#lf-reset').addEventListener('click',function(){lfReset();$('#lf-fb').textContent='';$('#lf-act').textContent='-'});
+$$('[data-tl]').forEach(function(b){b.addEventListener('click',function(){L.light=b.dataset.tl;$('#lf-cls').textContent=L.light;var f=$('#lf-fb');
+  f.className='feedback small '+(L.light==='빨강'?'no':'ok');f.textContent=L.light==='빨강'?'카메라가 빨강을 인식했어요 → 양쪽 모터를 정지!':'초록! 다시 차선을 따라 움직여요.';lfDraw()})});
+lfReset();
+
+/* animation loop: run only the visible simulator */
+var lastIr=0;
+function loop(now){
+  if(!$('#m7').hidden)tunnelStep();
+  if(!$('#m8').hidden)vStep(now);
+  if(!$('#m9').hidden){lfStep();lfStep();lfDraw();if(now-lastIr>150){$('#lf-ir').textContent=Math.round(L.ir);lastIr=now}}
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+
+/* ---------- M10 eval & bingo ---------- */
+var EV=['로봇의 구조를 이해하고 작동 원리를 설명할 수 있나요?','안전에 유의하며 로봇 블록을 정확하게 조립하였나요?','로봇의 작동 원리를 생각하며 프로그램을 작성하였나요?','친구들과 협력하여 문제를 해결하기 위해 노력하였나요?'];
+var evs=store.get('eval',[]);
+EV.forEach(function(q,qi){var d=el('div',{class:'ev'},'<span>'+q+'</span><div class="dots" role="group" aria-label="'+q+'"></div>');var dots=$('.dots',d);
+  function upd(){$$('button',dots).forEach(function(b,i){b.classList.toggle('on',i<(evs[qi]||0));b.setAttribute('aria-pressed',i<(evs[qi]||0)?'true':'false')})}
+  for(var i=0;i<3;i++)(function(i){var b=el('button',{'aria-label':(i+1)+'개'});b.addEventListener('click',function(){evs[qi]=evs[qi]===i+1?0:i+1;store.set('eval',evs);upd()});dots.appendChild(b)})(i);
+  upd();$('#evals').appendChild(d)});
+var BQ=[
+  ['어떠한 대상을 관찰·측정하여 얻은 값이나 사실을 데이터라고 해요.',['O','X'],0,'맞아요. 관찰·측정해서 얻은 값이나 사실이 데이터예요.'],
+  ['다음 중 아날로그 데이터 두 가지는?',['손 글씨 편지, 붓으로 그린 그림','스마트폰 사진, 디지털 체중계 몸무게'],0,'연속적인 변화를 표현한 것이 아날로그 데이터예요.'],
+  ['우리 사회에서 인공지능의 활용 범위는 점차 줄어들고 있어요.',['O','X'],1,'인공지능의 활용 범위는 점점 넓어지고 있어요.'],
+  ['각각의 데이터에 정답을 부여하는 과정을 데이터 수집이라고 해요.',['O','X'],1,'정답을 붙이는 과정은 레이블링이에요.'],
+  ['농업 전문가는 인공지능을 활용하여 농작물 생산량을 예측하고 병해충을 탐지하는 등 농작물을 효율적으로 관리할 수 있어요.',['O','X'],0,'인공지능과 협업하는 직업의 예예요.'],
+  ['로봇에서 사람의 감각 기관에 해당하는 부분은?',['감지 장치','구동 장치','전원 장치'],0,'감지 장치는 눈, 귀, 피부 역할을 해요.'],
+  ['로봇의 구조 중 사람의 두뇌에 해당하는 것은?',['구동 장치','제어 장치','몸체'],1,'제어 장치가 판단하고 명령을 내려요.'],
+  ['인공지능은 데이터 학습을 통해 모델을 생성하고 테스트 데이터로 평가해요.',['O','X'],0,'학습 → 모델 생성 → 테스트 데이터로 평가!'],
+  ['화재 진압 로봇의 제어 장치는 감지 장치에서 보내온 신호와 관련 데이터를 분석하여 불이 난 위치를 탐지해요.',['O','X'],0,'감지 → 제어(분석·탐지) → 구동 순서예요.']];
+var LINES=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+function drawBingo(){var box=$('#bingo');box.innerHTML='';var res={};$('#bingo-c').textContent='빙고 0줄';
+  BQ.forEach(function(q,qi){var d=el('div',{class:'bc'},'<p>'+q[0]+'</p><div class="opts"></div><span class="ans feedback"></span>');var o=$('.opts',d);
+    q[1].forEach(function(op,oi){var b=el('button',null,op);b.addEventListener('click',function(){if(qi in res)return;var ok=oi===q[2];res[qi]=ok;
+      d.classList.add(ok?'right':'wrong');b.classList.add(ok?'right':'wrong');var a=$('.ans',d);a.className='ans feedback small '+(ok?'ok':'no');a.textContent=(ok?'정답! ':'아쉬워요. ')+q[3];
+      var n=LINES.filter(function(l){return l.every(function(i){return res[i]})}).length;$('#bingo-c').textContent='빙고 '+n+'줄'+(n>=3?' 🎉':'')});o.appendChild(b)});
+    box.appendChild(d)})}
+drawBingo();$('#bingo-re').addEventListener('click',drawBingo);
+
+/* ---------- certificates ---------- */
+var CERT={1:{ms:['m1','m2','m3','m4','m5'],title:'1차시 미션 확인증',sub:'로봇과 친해지기'},2:{ms:['m6','m7','m8','m9','m10'],title:'2차시 미션 확인증',sub:'자율주행 로봇 만들기'}};
+var dlP=null;
+function getDl(){if(!dlP){try{dlP=(window.claude&&window.claude.use)?window.claude.use('downloads').catch(function(){return null}):Promise.resolve(null)}catch(e){dlP=Promise.resolve(null)}}return dlP}
+getDl();
+function fallbackSave(c,blob,fname,fb){
+  var url=URL.createObjectURL(blob);
+  try{var a=document.createElement('a');a.href=url;a.download=fname;document.body.appendChild(a);a.click();a.remove()}catch(e){}
+  var box=$('.cfall',c);box.hidden=false;var img=$('img',box);img.src=$('canvas',c).toDataURL('image/png');img.alt=fname;
+  fb.className='feedback small cfb ok';fb.textContent='내려받기 폴더를 확인해 보세요. 파일이 없으면 아래 확인증 그림을 길게 누르거나 마우스 오른쪽 버튼으로 눌러 「이미지를 다른 이름으로 저장」을 고르세요.';
+}
+var oldName='';try{var on=localStorage.getItem('ailab:cert-name');if(on)oldName=JSON.parse(on)}catch(e){}
+$$('.cert').forEach(function(c){
+  var L2=c.dataset.lesson,cf=CERT[L2];
+  c.innerHTML='<h3>'+cf.title+' 받기</h3><p class="small">'+cf.ms.map(function(id){return id.slice(1)}).join(', ')+'번 미션에서 <b>미션 완료 도장</b>을 모두 찍으면 확인증을 내려받을 수 있어요.</p><div class="todo"></div>'+
+  '<div class="body" style="display:grid;gap:12px"><label class="small" for="cert-name-'+L2+'">내 이름 (예: 6학년 2반 김하늘)</label><input type="text" id="cert-name-'+L2+'" maxlength="24" placeholder="학년, 반, 이름을 적어요"><canvas width="1200" height="850" aria-label="'+cf.title+' 미리 보기"></canvas><div class="row"><button class="btn sun dlbtn">확인증 내려받기 (그림 파일)</button><span class="feedback small cfb"></span></div><div class="cfall" hidden style="display:grid;gap:6px;justify-items:center"><span class="small muted">↓ 이 그림을 저장하세요</span><img style="width:100%;max-width:600px;border-radius:12px;border:3px solid var(--leaf)"></div></div>';
+  var inp=$('input',c);inp.value=store.get('cert-name',oldName);
+  inp.addEventListener('input',function(){store.set('cert-name',inp.value);$$('.cert input').forEach(function(o){if(o!==inp)o.value=inp.value});refreshCert()});
+  $('.dlbtn',c).addEventListener('click',function(){
+    var fb=$('.cfb',c);
+    if(!inp.value.trim()){fb.className='feedback small cfb no';fb.textContent='먼저 이름을 적어 주세요.';inp.focus();return}
+    var fname='로봇_'+L2+'차시_미션확인증_'+inp.value.trim().replace(/[^0-9A-Za-z가-힣ㄱ-ㅎㅏ-ㅣ_-]+/g,'_')+'.png';
+    fb.className='feedback small cfb';fb.textContent='확인증을 만드는 중…';
+    $('canvas',c).toBlob(function(blob){
+      getDl().then(function(dl){
+        if(!dl){fallbackSave(c,blob,fname,fb);return}
+        dl.save({filename:fname,data:blob}).then(function(){fb.className='feedback small cfb ok';fb.textContent='확인증을 저장했어요! 내려받기 폴더를 확인하세요.'})
+        .catch(function(e){var code=e&&e.code;
+          if(code==='declined'){fb.className='feedback small cfb no';fb.textContent='저장을 취소했어요. 다시 누르면 저장할 수 있어요.'}
+          else if(code==='rate_limited'){fb.className='feedback small cfb no';fb.textContent='저장 창이 이미 열려 있어요. 창을 확인하거나 잠시 뒤에 다시 눌러 주세요.'}
+          else fallbackSave(c,blob,fname,fb)});
+      });
+    },'image/png');
+  });
+});
+function rr(x,a,b,w,h,r){x.beginPath();x.moveTo(a+r,b);x.arcTo(a+w,b,a+w,b+h,r);x.arcTo(a+w,b+h,a,b+h,r);x.arcTo(a,b+h,a,b,r);x.arcTo(a,b,a+w,b,r);x.closePath()}
+function drawCert(cv2,L3,name){
+  var cf=CERT[L3],x=cv2.getContext('2d'),W2=1200,H2=850,D='"Jua","Apple SD Gothic Neo","Malgun Gothic",sans-serif',B='"Gowun Dodum","Apple SD Gothic Neo","Malgun Gothic",sans-serif';
+  x.fillStyle='#FFFFFF';x.fillRect(0,0,W2,H2);
+  x.fillStyle='#ECE6FC';rr(x,24,24,W2-48,H2-48,36);x.fill();
+  x.fillStyle='#FFFFFF';rr(x,48,48,W2-96,H2-96,28);x.fill();
+  x.setLineDash([14,10]);x.strokeStyle='#FFC22E';x.lineWidth=5;rr(x,64,64,W2-128,H2-128,22);x.stroke();x.setLineDash([]);
+  // robot car
+  x.save();x.translate(1010,170);x.fillStyle='#7A5AD8';rr(x,-62,-40,124,70,18);x.fill();
+  x.fillStyle='#fff';x.beginPath();x.arc(-24,-6,14,0,7);x.arc(24,-6,14,0,7);x.fill();
+  x.fillStyle='#1D2A39';x.beginPath();x.arc(-24,-6,7,0,7);x.fill();x.beginPath();x.arc(24,-6,7,0,7);x.fill();
+  x.fillStyle='#7A5AD8';x.fillRect(-5,-68,10,28);x.fillStyle='#FFC22E';x.beginPath();x.arc(0,-72,12,0,7);x.fill();
+  x.fillStyle='#1D2A39';x.beginPath();x.arc(-38,40,20,0,7);x.fill();x.beginPath();x.arc(38,40,20,0,7);x.fill();
+  x.fillStyle='#E8EDF2';x.beginPath();x.arc(-38,40,8,0,7);x.fill();x.beginPath();x.arc(38,40,8,0,7);x.fill();x.restore();
+  x.textAlign='center';x.fillStyle='#7A5AD8';x.font='28px '+D;x.fillText('6. 인공지능과 로봇의 만남 · 02 로봇과 인공지능',W2/2-60,140);
+  x.fillStyle='#1D2A39';x.font='84px '+D;x.fillText(cf.title,W2/2-60,240);
+  x.fillStyle='#56687B';x.font='30px '+B;x.fillText(cf.sub,W2/2-60,290);
+  x.fillStyle='#1D2A39';x.font='52px '+D;var nm=name||'(이름을 적어요)';x.fillText(nm,W2/2,385);
+  var tw=x.measureText(nm).width;x.strokeStyle='#FFC22E';x.lineWidth=6;x.beginPath();x.moveTo(W2/2-tw/2-20,405);x.lineTo(W2/2+tw/2+20,405);x.stroke();
+  var ms=cf.ms,n=ms.length,cw=180,gap=18,tot=n*cw+(n-1)*gap,sx=(W2-tot)/2;
+  ms.forEach(function(id,i){var ok=!!done[id],bx=sx+i*(cw+gap);x.fillStyle=ok?'#DDF5E9':'#F2F5F8';rr(x,bx,450,cw,120,18);x.fill();
+    x.strokeStyle=ok?'#1E9E66':'#C9D3DD';x.lineWidth=3;rr(x,bx,450,cw,120,18);x.stroke();
+    x.fillStyle=ok?'#1E9E66':'#9AA7B4';x.font='40px '+D;x.fillText(ok?'★':'☆',bx+cw/2,500);
+    x.font='24px '+D;x.fillStyle='#1D2A39';x.fillText('미션 '+id.slice(1),bx+cw/2,532);x.font='19px '+B;x.fillStyle='#56687B';x.fillText($('#'+id).dataset.title,bx+cw/2,558)});
+  x.fillStyle='#1D2A39';x.font='32px '+B;
+  x.fillText('위 학생은 실과 「로봇과 인공지능」 '+L3+'차시의',W2/2,640);x.fillText('모든 미션을 끝까지 해결하였기에 이 확인증을 드립니다.',W2/2,685);
+  var d=new Date();x.font='26px '+B;x.fillStyle='#56687B';x.fillText(d.getFullYear()+'년 '+(d.getMonth()+1)+'월 '+d.getDate()+'일',W2/2,750);
+  x.save();x.translate(1050,730);x.rotate(-.18);x.strokeStyle='#F0584A';x.lineWidth=6;x.beginPath();x.arc(0,0,62,0,7);x.stroke();x.lineWidth=2;x.beginPath();x.arc(0,0,52,0,7);x.stroke();
+  x.fillStyle='#F0584A';x.font='30px '+D;x.fillText('미션',0,-6);x.fillText('완료',0,28);x.restore();
+}
+function refreshCert(){
+  $$('.cert').forEach(function(c){var L3=c.dataset.lesson,cf=CERT[L3];var all=cf.ms.every(function(id){return done[id]});
+    $('.todo',c).innerHTML=cf.ms.map(function(id){return '<span class="'+(done[id]?'ok':'')+'">'+(done[id]?'★ ':'☆ ')+'미션 '+id.slice(1)+'</span>'}).join('');
+    $('.body',c).hidden=!all;if(all)drawCert($('canvas',c),L3,$('input',c).value.trim())});
+}
+var _rd=refreshDone;refreshDone=function(){_rd();refreshCert()};
+refreshCert();
+if(document.fonts&&document.fonts.load){Promise.all([document.fonts.load('40px "Jua"'),document.fonts.load('30px "Gowun Dodum"')]).then(function(){refreshCert();lfDraw()},function(){})}
+
+var start=(location.hash||'').replace('#','')||store.get('tab','m0');
+show(start);
+})();
+</script>
+
+</body>
+</html>
